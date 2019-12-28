@@ -1,12 +1,12 @@
 import React, { Component } from "react";
 import Matter from "matter-js";
-
-import "./App.css";
+import controls from "./gameControls";
 
 const Engine = Matter.Engine,
   Render = Matter.Render,
   World = Matter.World,
   Bodies = Matter.Bodies,
+  Events = Matter.Events,
   Body = Matter.Body;
 
 class WorldClass extends Component {
@@ -14,14 +14,13 @@ class WorldClass extends Component {
     super(props);
     this.setupWorld = this.setupWorld.bind(this);
     this.movePlayer = this.movePlayer.bind(this);
-    this.move = this.move.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.worldWidth = 1000;
     this.worldHeight = 600;
     this.groundHeight = 30;
     this.criclesDiameter = 40;
-    this.boxA = Bodies.circle(
+    this.player1 = Bodies.circle(
       this.worldWidth / 4,
       this.worldHeight - this.groundHeight - this.criclesDiameter,
       this.criclesDiameter,
@@ -39,6 +38,13 @@ class WorldClass extends Component {
       this.worldHeight - this.groundHeight - this.criclesDiameter,
       this.criclesDiameter
     );
+    this.net = Bodies.rectangle(
+      this.worldWidth / 2,
+      (this.worldHeight / 4) * 3 - this.groundHeight,
+      10,
+      this.worldHeight / 2,
+      { isStatic: true }
+    );
     this.currentlyPressedKeys = [];
   }
 
@@ -48,11 +54,11 @@ class WorldClass extends Component {
 
   keyUpHandler(e) {
     console.log("KEY UP");
-    if (e.key === "a") {
-      Body.setVelocity(this.boxA, { x: 0, y: 0 });
+    if (e.key === "a" && this.player1.velocity.x < 0) {
+      Body.setVelocity(this.player1, { x: 0, y: this.player1.velocity.y });
     }
-    if (e.key === "d") {
-      Body.setVelocity(this.boxA, { x: 0, y: 0 });
+    if (e.key === "d" && this.player1.velocity.x > 0) {
+      Body.setVelocity(this.player1, { x: 0, y: this.player1.velocity.y });
     }
     this.currentlyPressedKeys = this.currentlyPressedKeys.filter(
       k => k !== e.key
@@ -62,34 +68,29 @@ class WorldClass extends Component {
   keyDownHandler(e) {
     this.currentlyPressedKeys.push(e.key);
     switch (e.key) {
-      case "a":
-        Body.setVelocity(this.boxA, { x: -10, y: this.boxA.velocity.y });
-        this.move(e.key, this.boxA, -1);
+      case controls.player1.left:
+        Body.setVelocity(this.player1, { x: -7, y: this.player1.velocity.y });
         break;
 
-      case "d":
-        Body.setVelocity(this.boxA, { x: 10, y: this.boxA.velocity.y });
-        this.move(e.key, this.boxA, -1);
-        break;
+      case controls.player1.right:
+        if (this.player1.position.x < this.net.position.x - 50) {
+          console.log("Moving right");
+          Body.setVelocity(this.player1, { x: 7, y: this.player1.velocity.y });
+          break;
+        } else {
+          console.log("STOP");
+          Body.setVelocity(this.player1, { x: 0, y: this.player1.velocity.y });
+          break;
+        }
 
-      case "w":
-        Body.setVelocity(this.boxA, { x: 0, y: -16 });
-        this.move(e.key, this.boxA, -1);
+      case controls.player1.up:
+        Body.setVelocity(this.player1, { x: this.player1.velocity.x, y: -26 });
         break;
 
       case "ArrowLeft":
-        this.move(e.key, this.boxB, -1);
         break;
       default:
         console.log("no valid key was pressed");
-    }
-  }
-
-  move(key, box, x) {
-    return;
-    while (this.currentlyPressedKeys.some(k => k === key)) {
-      this.movePlayer(box, x);
-      console.log("moved");
     }
   }
 
@@ -111,6 +112,8 @@ class WorldClass extends Component {
         showAngleIndicator: false
       }
     });
+
+    const engineWorld = engine.world;
 
     // create two boxes and a ground
     //this.boxA = Bodies.circle(this.worldWidth/4, this.worldHeight-this.groundHeight-this.criclesDiameter, this.criclesDiameter);
@@ -139,22 +142,25 @@ class WorldClass extends Component {
       { isStatic: true }
     );
 
-    const net = Bodies.rectangle(
-      this.worldWidth / 2,
-      (this.worldHeight / 4) * 3 - this.groundHeight,
-      10,
-      this.worldHeight / 2,
-      { isStatic: true }
-    );
     // add all of the bodies to the world
-    World.add(engine.world, [
-      this.boxA,
+
+    World.add(engineWorld, [
+      this.player1,
       this.boxB,
       ground,
       leftWall,
       rightWall,
-      net
+      this.net
     ]);
+
+    engineWorld.gravity.y = 3;
+
+    Events.on(engine, 'beforeUpdate', (event) => {
+      if (this.player1.position.x >= this.net.position.x-50 && this.player1.velocity.x >0){
+        Body.setVelocity(this.player1, { x: 0, y: this.player1.velocity.y });
+      }
+    })
+
 
     // run the engine
     Engine.run(engine);
