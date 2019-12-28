@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import Matter from "matter-js";
-import controls from "./gameControls";
+import {controls} from "./gameControls";
 
 const Engine = Matter.Engine,
   Render = Matter.Render,
@@ -10,10 +10,9 @@ const Engine = Matter.Engine,
   Body = Matter.Body;
 
 class WorldClass extends Component {
-  constructor(props) {
+  constructor(props:any) {
     super(props);
     this.setupWorld = this.setupWorld.bind(this);
-    this.movePlayer = this.movePlayer.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
     this.keyDownHandler = this.keyDownHandler.bind(this);
     this.worldWidth = 1000;
@@ -26,14 +25,7 @@ class WorldClass extends Component {
       this.criclesDiameter,
       { friction: 0 }
     );
-    // this.boxA = Bodies.rectangle(
-    //   this.worldWidth / 4,
-    //   this.worldHeight - this.groundHeight - this.criclesDiameter,
-    //   20,
-    //   20,
-    //   {friction:0}
-    // );
-    this.boxB = Bodies.circle(
+    this.player2 = Bodies.circle(
       (this.worldWidth / 4) * 3,
       this.worldHeight - this.groundHeight - this.criclesDiameter,
       this.criclesDiameter
@@ -45,14 +37,24 @@ class WorldClass extends Component {
       this.worldHeight / 2,
       { isStatic: true }
     );
-    this.currentlyPressedKeys = [];
   }
+
+  private worldWidth:number;
+  private worldHeight:number;
+  private groundHeight:number;
+  private criclesDiameter:number;
+  private net:Matter.Body;
+  private player1:Matter.Body;
+  private player2:Matter.Body;
+
+
+
 
   componentDidMount() {
     this.setupWorld();
   }
 
-  keyUpHandler(e) {
+  private keyUpHandler(e:any) {
     console.log("KEY UP");
     if (e.key === "a" && this.player1.velocity.x < 0) {
       Body.setVelocity(this.player1, { x: 0, y: this.player1.velocity.y });
@@ -60,13 +62,9 @@ class WorldClass extends Component {
     if (e.key === "d" && this.player1.velocity.x > 0) {
       Body.setVelocity(this.player1, { x: 0, y: this.player1.velocity.y });
     }
-    this.currentlyPressedKeys = this.currentlyPressedKeys.filter(
-      k => k !== e.key
-    );
   }
 
-  keyDownHandler(e) {
-    this.currentlyPressedKeys.push(e.key);
+  private keyDownHandler(e:any) {
     switch (e.key) {
       case controls.player1.left:
         Body.setVelocity(this.player1, { x: -7, y: this.player1.velocity.y });
@@ -94,22 +92,18 @@ class WorldClass extends Component {
     }
   }
 
-  movePlayer(box, x) {
-    Body.setVelocity(box, { x: x, y: 20 });
-  }
 
-  setupWorld() {
+  private setupWorld() {
     // create an engine
     const engine = Engine.create();
 
     // create a renderer
     const render = Render.create({
-      element: this.refs.World,
+      element: this.refs.World as HTMLElement,
       engine: engine,
       options: {
         width: this.worldWidth,
-        height: this.worldHeight,
-        showAngleIndicator: false
+        height: this.worldHeight
       }
     });
 
@@ -146,7 +140,7 @@ class WorldClass extends Component {
 
     World.add(engineWorld, [
       this.player1,
-      this.boxB,
+      this.player2,
       ground,
       leftWall,
       rightWall,
@@ -173,7 +167,7 @@ class WorldClass extends Component {
     return (
       <div
         className="World"
-        tabIndex="0"
+        tabIndex={0}
         onKeyDown={this.keyDownHandler}
         onKeyUp={this.keyUpHandler}
         id="World"
