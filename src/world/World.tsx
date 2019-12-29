@@ -1,16 +1,16 @@
 import React, { Component } from "react";
 import Matter from "matter-js";
-import {controls} from "./gameControls";
+import { PlayersData } from "./PlayerData";
+import { Player } from "./Player";
+import { IPlayerData } from "../interfaces/IPlayerData";
 
 const Engine = Matter.Engine,
   Render = Matter.Render,
   World = Matter.World,
-  Bodies = Matter.Bodies,
-  Events = Matter.Events,
-  Body = Matter.Body;
+  Bodies = Matter.Bodies
 
 class WorldClass extends Component {
-  constructor(props:any) {
+  constructor(props: any) {
     super(props);
     this.setupWorld = this.setupWorld.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
@@ -19,17 +19,33 @@ class WorldClass extends Component {
     this.worldHeight = 600;
     this.groundHeight = 30;
     this.criclesDiameter = 40;
-    this.player1 = Bodies.circle(
-      this.worldWidth / 4,
-      this.worldHeight - this.groundHeight - this.criclesDiameter,
-      this.criclesDiameter,
-      { friction: 0 }
+    const player1Data: IPlayerData = PlayersData.find(
+      p => p.name === "player1"
+    ) as IPlayerData;
+    this.player1 = new Player(
+      Bodies.circle(
+        this.worldWidth / 4,
+        this.worldHeight - this.groundHeight - this.criclesDiameter,
+        this.criclesDiameter,
+        { friction: 0 }
+      ),
+      player1Data
     );
-    this.player2 = Bodies.circle(
-      (this.worldWidth / 4) * 3,
-      this.worldHeight - this.groundHeight - this.criclesDiameter,
-      this.criclesDiameter
+
+    const player2Data: IPlayerData = PlayersData.find(
+      p => p.name === "player2"
+    ) as IPlayerData;
+    this.player2 = new Player(
+      Bodies.circle(
+        (this.worldWidth / 4) * 3,
+        this.worldHeight - this.groundHeight - this.criclesDiameter,
+        this.criclesDiameter,
+        { friction: 0 }
+      ),
+      player2Data
     );
+
+    this.players = [this.player1, this.player2];
     this.net = Bodies.rectangle(
       this.worldWidth / 2,
       (this.worldHeight / 4) * 3 - this.groundHeight,
@@ -39,59 +55,26 @@ class WorldClass extends Component {
     );
   }
 
-  private worldWidth:number;
-  private worldHeight:number;
-  private groundHeight:number;
-  private criclesDiameter:number;
-  private net:Matter.Body;
-  private player1:Matter.Body;
-  private player2:Matter.Body;
-
-
-
+  private worldWidth: number;
+  private worldHeight: number;
+  private groundHeight: number;
+  private criclesDiameter: number;
+  private net: Matter.Body;
+  private player1: Player;
+  private player2: Player;
+  private players: Array<Player>;
 
   componentDidMount() {
     this.setupWorld();
   }
 
-  private keyUpHandler(e:any) {
-    console.log("KEY UP");
-    if (e.key === "a" && this.player1.velocity.x < 0) {
-      Body.setVelocity(this.player1, { x: 0, y: this.player1.velocity.y });
-    }
-    if (e.key === "d" && this.player1.velocity.x > 0) {
-      Body.setVelocity(this.player1, { x: 0, y: this.player1.velocity.y });
-    }
+  private keyUpHandler(e: any) {
+    this.players.find(p => p.keyIsPlayerControl(e.key))?.stopMove(e.key);
   }
 
-  private keyDownHandler(e:any) {
-    switch (e.key) {
-      case controls.player1.left:
-        Body.setVelocity(this.player1, { x: -7, y: this.player1.velocity.y });
-        break;
-
-      case controls.player1.right:
-        if (this.player1.position.x < this.net.position.x - 50) {
-          console.log("Moving right");
-          Body.setVelocity(this.player1, { x: 7, y: this.player1.velocity.y });
-          break;
-        } else {
-          console.log("STOP");
-          Body.setVelocity(this.player1, { x: 0, y: this.player1.velocity.y });
-          break;
-        }
-
-      case controls.player1.up:
-        Body.setVelocity(this.player1, { x: this.player1.velocity.x, y: -26 });
-        break;
-
-      case "ArrowLeft":
-        break;
-      default:
-        console.log("no valid key was pressed");
-    }
+  private keyDownHandler(e: any) {
+    this.players.find(p => p.keyIsPlayerControl(e.key))?.move(e.key);
   }
-
 
   private setupWorld() {
     // create an engine
@@ -139,8 +122,8 @@ class WorldClass extends Component {
     // add all of the bodies to the world
 
     World.add(engineWorld, [
-      this.player1,
-      this.player2,
+      this.player1.body,
+      this.player2.body,
       ground,
       leftWall,
       rightWall,
@@ -149,12 +132,11 @@ class WorldClass extends Component {
 
     engineWorld.gravity.y = 3;
 
-    Events.on(engine, 'beforeUpdate', (event) => {
-      if (this.player1.position.x >= this.net.position.x-50 && this.player1.velocity.x >0){
-        Body.setVelocity(this.player1, { x: 0, y: this.player1.velocity.y });
-      }
-    })
-
+    Matter.Events.on(engine, "beforeUpdate", event => {
+      this.players.forEach(player => {
+        player.preventGoingOverNet(this.net);
+      });
+    });
 
     // run the engine
     Engine.run(engine);
