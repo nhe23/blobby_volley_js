@@ -29,7 +29,7 @@ class WorldClass extends Component {
         this.criclesDiameter,
         { friction: 0 }
       ),
-      player1Data
+      player1Data, true
     );
 
     const player2Data: IPlayerData = PlayersData.find(
@@ -42,12 +42,12 @@ class WorldClass extends Component {
         this.criclesDiameter,
         { friction: 0 }
       ),
-      player2Data
+      player2Data, false
     );
 
     this.players = [this.player1, this.player2];
     this.net = Bodies.rectangle(
-      this.worldWidth / 2,
+      this.worldWidth / 2 - 5,
       (this.worldHeight / 4) * 3 - this.groundHeight,
       10,
       this.worldHeight / 2,
@@ -92,9 +92,6 @@ class WorldClass extends Component {
 
     const engineWorld = engine.world;
 
-    // create two boxes and a ground
-    //this.boxA = Bodies.circle(this.worldWidth/4, this.worldHeight-this.groundHeight-this.criclesDiameter, this.criclesDiameter);
-
     const ground = Bodies.rectangle(
       this.worldWidth / 2,
       this.worldHeight - this.groundHeight / 2,
@@ -118,8 +115,6 @@ class WorldClass extends Component {
       this.worldHeight,
       { isStatic: true }
     );
-
-    // add all of the bodies to the world
 
     World.add(engineWorld, [
       this.player1.body,

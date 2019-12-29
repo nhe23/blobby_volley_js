@@ -8,13 +8,15 @@ export class Player {
   public body: Matter.Body;
   private playerData: IPlayerData;
   private controls: Array<IControl>;
-  constructor(body: Matter.Body, playerData: IPlayerData) {
+  private playerIsLeftPlayer: Boolean;
+  constructor(body: Matter.Body, playerData: IPlayerData, playerIsLeftPlayer:Boolean) {
     this.body = body;
     this.playerData = playerData;
     this.controls = playerData.controls;
+    this.playerIsLeftPlayer = playerIsLeftPlayer;
   }
 
-  public keyIsPlayerControl(key:string):boolean{
+  public keyIsPlayerControl(key: string): boolean {
     return this.controls.some(c => c.key === key);
   }
 
@@ -33,50 +35,53 @@ export class Player {
     }
   }
 
-
-  public stopMove(key: string){
+  public stopMove(key: string) {
     const direction = this.controls.find(c => c.key === key);
     switch (direction?.name) {
       case ControlsEnum.left:
         if (this.body.velocity.x < 0)
-            Matter.Body.setVelocity(this.body, { x: 0, y: this.body.velocity.y });
+          Matter.Body.setVelocity(this.body, { x: 0, y: this.body.velocity.y });
         break;
       case ControlsEnum.right:
         if (this.body.velocity.x > 0)
-        Matter.Body.setVelocity(this.body, { x: 0, y: this.body.velocity.y });
+          Matter.Body.setVelocity(this.body, { x: 0, y: this.body.velocity.y });
         break;
     }
   }
 
-  public preventGoingOverNet(net:Matter.Body){
-    if (this.body.velocity.x > 0 && (this.body.position.x >= net.position.x-50 || this.body.position.x <= net.position.x+50)){
-        this.moveBody(0);
-      }
+  public preventGoingOverNet(net: Matter.Body) {
+    if (
+      (this.playerIsLeftPlayer && this.body.velocity.x > 0 &&
+        this.body.position.x >= net.position.x - 50) ||
+      (!this.playerIsLeftPlayer && this.body.velocity.x < 0 && this.body.position.x <= net.position.x + 50)
+    ) {
+      this.moveBody(0);
+    }
   }
 
   public moveLeft() {
-    this.moveBody(-7);
+    this.moveBody(-10);
   }
 
   public moveRight() {
-    this.moveBody(7);
+    this.moveBody(10);
   }
 
   public jump() {
-      this.moveBody(undefined, -26);
+    this.moveBody(undefined, -26);
   }
 
   private moveBody(xVector?: number, yVector?: number) {
-    if (xVector && yVector)
+    if (xVector !== undefined && yVector !== undefined)
       return Matter.Body.setVelocity(this.body, { x: xVector, y: yVector });
 
-    if (xVector)
+    if (xVector !== undefined)
       return Matter.Body.setVelocity(this.body, {
         x: xVector,
         y: this.body.velocity.y
       });
 
-    if (yVector)
+    if (yVector !== undefined)
       return Matter.Body.setVelocity(this.body, {
         x: this.body.velocity.x,
         y: yVector
