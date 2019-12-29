@@ -1,7 +1,7 @@
-### Blobbey Volley
+# Blobbey Volley
 This is a JavaScript only remake of the legendary BlobbeyVolley. The purpose of this project is purely fun and learning new stuff on the way. This project was realized with the [matter-js](https://github.com/liabru/matter-js) physics enginge and react as frontend framework.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
 
 ## Available Scripts
 
