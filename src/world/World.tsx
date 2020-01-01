@@ -7,7 +7,7 @@ import { IPlayerData } from "../interfaces/IPlayerData";
 const Engine = Matter.Engine,
   Render = Matter.Render,
   World = Matter.World,
-  Bodies = Matter.Bodies
+  Bodies = Matter.Bodies;
 
 class WorldClass extends Component {
   constructor(props: any) {
@@ -29,7 +29,8 @@ class WorldClass extends Component {
         this.criclesDiameter,
         { friction: 0 }
       ),
-      player1Data, true
+      player1Data,
+      true
     );
 
     const player2Data: IPlayerData = PlayersData.find(
@@ -42,16 +43,24 @@ class WorldClass extends Component {
         this.criclesDiameter,
         { friction: 0 }
       ),
-      player2Data, false
+      player2Data,
+      false
     );
 
     this.players = [this.player1, this.player2];
     this.net = Bodies.rectangle(
       this.worldWidth / 2 - 5,
       (this.worldHeight / 4) * 3 - this.groundHeight,
-      10,
+      30,
       this.worldHeight / 2,
       { isStatic: true }
+    );
+
+    this.ball = Bodies.circle(
+      this.worldWidth / 4,
+      this.worldHeight / 2,
+      this.criclesDiameter,
+      { isStatic: true, frictionAir: 0, restitution:0.2},
     );
   }
 
@@ -63,6 +72,7 @@ class WorldClass extends Component {
   private player1: Player;
   private player2: Player;
   private players: Array<Player>;
+  private ball: Matter.Body;
 
   componentDidMount() {
     this.setupWorld();
@@ -73,7 +83,7 @@ class WorldClass extends Component {
   }
 
   private keyDownHandler(e: any) {
-    this.players.find(p => p.keyIsPlayerControl(e.key))?.move(e.key);
+    this.players.find(p => p.keyIsPlayerControl(e.key))?.move(e.key);    
   }
 
   private setupWorld() {
@@ -91,6 +101,7 @@ class WorldClass extends Component {
     });
 
     const engineWorld = engine.world;
+    engine.timing.timeScale= 1.2;
 
     const ground = Bodies.rectangle(
       this.worldWidth / 2,
@@ -104,15 +115,15 @@ class WorldClass extends Component {
       this.groundHeight / 2,
       this.worldHeight / 2,
       this.groundHeight,
-      this.worldHeight,
-      { isStatic: true }
+      this.worldHeight*10,
+      { isStatic: true, friction:0 }
     );
 
     const rightWall = Bodies.rectangle(
       this.worldWidth - this.groundHeight / 2,
       this.worldHeight / 2,
       this.groundHeight,
-      this.worldHeight,
+      this.worldHeight*10,
       { isStatic: true }
     );
 
@@ -122,15 +133,39 @@ class WorldClass extends Component {
       ground,
       leftWall,
       rightWall,
-      this.net
+      this.net,
+      this.ball
     ]);
 
-    engineWorld.gravity.y = 3;
+    engineWorld.gravity.y = 1;
 
     Matter.Events.on(engine, "beforeUpdate", event => {
-      this.players.forEach(player => {
+      this.players.forEach(player => {                                                 
+        player.watchJump(this.worldHeight/4);
         player.preventGoingOverNet(this.net);
       });
+    });
+
+
+    Matter.Events.on(engine, "collisionStart", (event) => {
+      const pairs = event.pairs;
+      pairs.forEach(pair => {
+        if(pair.bodyA === this.ball || pair.bodyB === this.ball){
+          Matter.Body.setStatic(this.ball, false);
+          Matter.Body.setMass(this.ball, 1);
+          console.log(`Ball xVelocity: ${this.ball.velocity.x}. Ball inertia ${this.ball.inertia}`);
+        }
+      });
+
+      // for (var i = 0, j = pairs.length; i != j; ++i) {
+      //   var pair = pairs[i];
+
+      //   if (pair.bodyA === collider) {
+      //     pair.bodyB.render.strokeStyle = redColor;
+      //   } else if (pair.bodyB === collider) {
+      //     pair.bodyA.render.strokeStyle = redColor;
+      //   }
+      // }
     });
 
     // run the engine

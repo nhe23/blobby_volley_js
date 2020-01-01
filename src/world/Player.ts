@@ -59,6 +59,15 @@ export class Player {
     }
   }
 
+  public watchJump(maxHeight:number){
+    if (this.body.velocity.y < -1 )
+      console.log(`y: ${this.body.position.y}`);
+    if (this.body.velocity.y < -1 && this.body.position.y <= 150){
+      this.moveBody(undefined, 10);
+      console.log("Restrict jump");
+    }
+  }
+
   public moveLeft() {
     this.moveBody(-10);
   }
@@ -68,7 +77,7 @@ export class Player {
   }
 
   public jump() {
-    this.moveBody(undefined, -26);
+    this.moveBody(undefined, -23);
   }
 
   private moveBody(xVector?: number, yVector?: number) {
