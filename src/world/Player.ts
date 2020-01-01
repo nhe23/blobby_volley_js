@@ -60,11 +60,8 @@ export class Player {
   }
 
   public watchJump(maxHeight:number){
-    if (this.body.velocity.y < -1 )
-      console.log(`y: ${this.body.position.y}`);
     if (this.body.velocity.y < -1 && this.body.position.y <= 150){
       this.moveBody(undefined, 10);
-      console.log("Restrict jump");
     }
   }
 

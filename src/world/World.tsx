@@ -3,7 +3,7 @@ import Matter from "matter-js";
 import { PlayersData } from "./PlayerData";
 import { Player } from "./Player";
 import { IPlayerData } from "../interfaces/IPlayerData";
-import { runInThisContext } from "vm";
+import Beach_volleyball_ball from "./../data/Beach_volleyball_ball.png"
 
 const Engine = Matter.Engine,
   Render = Matter.Render,
@@ -58,13 +58,30 @@ class WorldClass extends Component {
       { isStatic: true }
     );
 
-    this.initialBallData = {x: this.worldWidth / 4, y: this.worldHeight / 2, diameter: this.criclesDiameter, options: {isStatic: true, frictionAir: 0, restitution:0.4}}
+    this.initialBallData = {
+      x: this.worldWidth / 4,
+      y: this.worldHeight / 2,
+      diameter: this.criclesDiameter,
+      options: {
+        isStatic: true,
+        frictionAir: 0,
+        restitution: 0.4,
+        render: {
+          sprite: {
+            xScale: 0.15,
+            yScale: 0.15,
+            texture: Beach_volleyball_ball
+          }
+        }
+      }
+    };
+
     this.ball = Bodies.circle(
       this.worldWidth / 4,
       this.worldHeight / 2,
       this.criclesDiameter,
-      { isStatic: true, frictionAir: 0, restitution:0.2},
-    );
+      this.initialBallData.options
+    )
   }
 
   private worldWidth: number;
@@ -88,7 +105,7 @@ class WorldClass extends Component {
   }
 
   private keyDownHandler(e: any) {
-    this.players.find(p => p.keyIsPlayerControl(e.key))?.move(e.key);    
+    this.players.find(p => p.keyIsPlayerControl(e.key))?.move(e.key);
   }
 
   private setupWorld() {
@@ -101,12 +118,13 @@ class WorldClass extends Component {
       engine: engine,
       options: {
         width: this.worldWidth,
-        height: this.worldHeight
+        height: this.worldHeight,
+        wireframes: false
       }
     });
 
     const engineWorld = engine.world;
-    engine.timing.timeScale= 1.2;
+    engine.timing.timeScale = 1.2;
 
     const ground = Bodies.rectangle(
       this.worldWidth / 2,
@@ -120,15 +138,15 @@ class WorldClass extends Component {
       this.groundHeight / 2,
       this.worldHeight / 2,
       this.groundHeight,
-      this.worldHeight*10,
-      { isStatic: true, friction:0 }
+      this.worldHeight * 10,
+      { isStatic: true }
     );
 
     const rightWall = Bodies.rectangle(
       this.worldWidth - this.groundHeight / 2,
       this.worldHeight / 2,
       this.groundHeight,
-      this.worldHeight*10,
+      this.worldHeight * 10,
       { isStatic: true }
     );
 
@@ -145,26 +163,36 @@ class WorldClass extends Component {
     engineWorld.gravity.y = 1;
 
     Matter.Events.on(engine, "beforeUpdate", event => {
-      this.players.forEach(player => {                                                 
-        player.watchJump(this.worldHeight/4);
+      this.players.forEach(player => {
+        player.watchJump(this.worldHeight / 4);
         player.preventGoingOverNet(this.net);
       });
     });
 
-
-    Matter.Events.on(engine, "collisionStart", (event) => {
+    Matter.Events.on(engine, "collisionStart", event => {
       const pairs = event.pairs;
       pairs.forEach(pair => {
-        if(!this.ballIsServed && (pair.bodyA === this.ball || pair.bodyB === this.ball)){
+        if (
+          !this.ballIsServed &&
+          (pair.bodyA === this.ball || pair.bodyB === this.ball)
+        ) {
           this.ballIsServed = true;
           Matter.Body.setStatic(this.ball, false);
-          Matter.Body.setMass(this.ball, 1);
+          Matter.Body.setMass(this.ball, 2);
           return;
         }
 
-        if ((pair.bodyA === this.ball || pair.bodyB === this.ball) && (pair.bodyA === ground || pair.bodyB === ground)){
+        if (
+          (pair.bodyA === this.ball || pair.bodyB === this.ball) &&
+          (pair.bodyA === ground || pair.bodyB === ground)
+        ) {
           World.remove(engineWorld, this.ball);
-          this.ball = Bodies.circle(this.initialBallData.x, this.initialBallData.y, this.initialBallData.diameter, this.initialBallData.options );
+          this.ball = Bodies.circle(
+            this.initialBallData.x,
+            this.initialBallData.y,
+            this.initialBallData.diameter,
+            this.initialBallData.options
+          );
           World.add(engineWorld, this.ball);
           this.ballIsServed = false;
         }
