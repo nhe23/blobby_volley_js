@@ -3,6 +3,7 @@ import Matter from "matter-js";
 import { PlayersData } from "./PlayerData";
 import { Player } from "./Player";
 import { IPlayerData } from "../interfaces/IPlayerData";
+import { runInThisContext } from "vm";
 
 const Engine = Matter.Engine,
   Render = Matter.Render,
@@ -19,6 +20,7 @@ class WorldClass extends Component {
     this.worldHeight = 600;
     this.groundHeight = 30;
     this.criclesDiameter = 40;
+    this.ballIsServed = false;
     const player1Data: IPlayerData = PlayersData.find(
       p => p.name === "player1"
     ) as IPlayerData;
@@ -56,6 +58,7 @@ class WorldClass extends Component {
       { isStatic: true }
     );
 
+    this.initialBallData = {x: this.worldWidth / 4, y: this.worldHeight / 2, diameter: this.criclesDiameter, options: {isStatic: true, frictionAir: 0, restitution:0.4}}
     this.ball = Bodies.circle(
       this.worldWidth / 4,
       this.worldHeight / 2,
@@ -73,6 +76,8 @@ class WorldClass extends Component {
   private player2: Player;
   private players: Array<Player>;
   private ball: Matter.Body;
+  private ballIsServed: Boolean;
+  private initialBallData: any;
 
   componentDidMount() {
     this.setupWorld();
@@ -150,10 +155,18 @@ class WorldClass extends Component {
     Matter.Events.on(engine, "collisionStart", (event) => {
       const pairs = event.pairs;
       pairs.forEach(pair => {
-        if(pair.bodyA === this.ball || pair.bodyB === this.ball){
+        if(!this.ballIsServed && (pair.bodyA === this.ball || pair.bodyB === this.ball)){
+          this.ballIsServed = true;
           Matter.Body.setStatic(this.ball, false);
           Matter.Body.setMass(this.ball, 1);
-          console.log(`Ball xVelocity: ${this.ball.velocity.x}. Ball inertia ${this.ball.inertia}`);
+          return;
+        }
+
+        if ((pair.bodyA === this.ball || pair.bodyB === this.ball) && (pair.bodyA === ground || pair.bodyB === ground)){
+          World.remove(engineWorld, this.ball);
+          this.ball = Bodies.circle(this.initialBallData.x, this.initialBallData.y, this.initialBallData.diameter, this.initialBallData.options );
+          World.add(engineWorld, this.ball);
+          this.ballIsServed = false;
         }
       });
 
