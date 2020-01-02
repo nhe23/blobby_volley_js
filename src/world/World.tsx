@@ -29,7 +29,7 @@ class WorldClass extends Component {
         this.worldWidth / 4,
         this.worldHeight - this.groundHeight - this.criclesDiameter,
         this.criclesDiameter,
-        { friction: 0 }
+        { friction: 0, mass:80 }
       ),
       player1Data,
       true
@@ -43,7 +43,7 @@ class WorldClass extends Component {
         (this.worldWidth / 4) * 3,
         this.worldHeight - this.groundHeight - this.criclesDiameter,
         this.criclesDiameter,
-        { friction: 0 }
+        { friction: 0, mass:80 }
       ),
       player2Data,
       false
@@ -65,7 +65,7 @@ class WorldClass extends Component {
       options: {
         isStatic: true,
         frictionAir: 0,
-        restitution: 0.4,
+        restitution: 1,
         render: {
           sprite: {
             xScale: 0.15,
@@ -80,7 +80,21 @@ class WorldClass extends Component {
       this.worldWidth / 4,
       this.worldHeight / 2,
       this.criclesDiameter,
-      this.initialBallData.options
+      {
+
+          isStatic: true,
+          frictionAir: 0,
+          restitution: 1,
+          density: 0.0001,
+          render: {
+            sprite: {
+              xScale: 0.15,
+              yScale: 0.15,
+              texture: Beach_volleyball_ball
+            }
+          }
+        }
+    
     )
   }
 
@@ -163,6 +177,12 @@ class WorldClass extends Component {
     engineWorld.gravity.y = 1;
 
     Matter.Events.on(engine, "beforeUpdate", event => {
+      const maxBallSpeed = 20;
+      if (this.ball.speed >= maxBallSpeed){
+        const factor = this.ball.speed / maxBallSpeed;
+        Matter.Body.setVelocity(this.ball, {x: this.ball.velocity.x/factor, y: this.ball.velocity.y/factor});
+      }
+        
       this.players.forEach(player => {
         player.watchJump(this.worldHeight / 4);
         player.preventGoingOverNet(this.net);
@@ -178,7 +198,7 @@ class WorldClass extends Component {
         ) {
           this.ballIsServed = true;
           Matter.Body.setStatic(this.ball, false);
-          Matter.Body.setMass(this.ball, 2);
+          Matter.Body.setMass(this.ball, 0.5);
           return;
         }
 
