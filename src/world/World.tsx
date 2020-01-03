@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import Matter from "matter-js";
-import { PlayersData } from "./PlayerData";
+import { PlayersData } from "./configuration/PlayerData";
 import { Player } from "./Player";
 import { IPlayerData } from "../interfaces/IPlayerData";
-import Beach_volleyball_ball from "./../data/Beach_volleyball_ball.png"
+import {worldDimensions} from "./configuration/WorldDimensions";
+import { Ball } from "./Ball";
 
 const Engine = Matter.Engine,
   Render = Matter.Render,
@@ -16,19 +17,14 @@ class WorldClass extends Component {
     this.setupWorld = this.setupWorld.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
     this.keyDownHandler = this.keyDownHandler.bind(this);
-    this.worldWidth = 1000;
-    this.worldHeight = 600;
-    this.groundHeight = 30;
-    this.criclesDiameter = 40;
-    this.ballIsServed = false;
     const player1Data: IPlayerData = PlayersData.find(
       p => p.name === "player1"
     ) as IPlayerData;
     this.player1 = new Player(
       Bodies.circle(
-        this.worldWidth / 4,
-        this.worldHeight - this.groundHeight - this.criclesDiameter,
-        this.criclesDiameter,
+        worldDimensions.width / 4,
+        worldDimensions.height - worldDimensions.groundHeight - worldDimensions.circlesDiameter,
+        worldDimensions.circlesDiameter,
         { friction: 0, mass:80 }
       ),
       player1Data,
@@ -40,9 +36,9 @@ class WorldClass extends Component {
     ) as IPlayerData;
     this.player2 = new Player(
       Bodies.circle(
-        (this.worldWidth / 4) * 3,
-        this.worldHeight - this.groundHeight - this.criclesDiameter,
-        this.criclesDiameter,
+        (worldDimensions.width / 4) * 3,
+        worldDimensions.height - worldDimensions.groundHeight - worldDimensions.circlesDiameter,
+        worldDimensions.circlesDiameter,
         { friction: 0, mass:80 }
       ),
       player2Data,
@@ -51,65 +47,23 @@ class WorldClass extends Component {
 
     this.players = [this.player1, this.player2];
     this.net = Bodies.rectangle(
-      this.worldWidth / 2 - 5,
-      (this.worldHeight / 4) * 3 - this.groundHeight,
+      worldDimensions.width / 2 - 5,
+      (worldDimensions.height / 4) * 3 - worldDimensions.groundHeight,
       30,
-      this.worldHeight / 2,
+      worldDimensions.height / 2,
       { isStatic: true }
     );
 
-    this.initialBallData = {
-      x: this.worldWidth / 4,
-      y: this.worldHeight / 2,
-      diameter: this.criclesDiameter,
-      options: {
-        isStatic: true,
-        frictionAir: 0,
-        restitution: 1,
-        render: {
-          sprite: {
-            xScale: 0.15,
-            yScale: 0.15,
-            texture: Beach_volleyball_ball
-          }
-        }
-      }
-    };
+    this.ball = new Ball(20);
 
-    this.ball = Bodies.circle(
-      this.worldWidth / 4,
-      this.worldHeight / 2,
-      this.criclesDiameter,
-      {
-
-          isStatic: true,
-          frictionAir: 0,
-          restitution: 1,
-          density: 0.0001,
-          render: {
-            sprite: {
-              xScale: 0.15,
-              yScale: 0.15,
-              texture: Beach_volleyball_ball
-            }
-          }
-        }
-    
-    )
   }
 
-  private worldWidth: number;
-  private worldHeight: number;
-  private groundHeight: number;
-  private criclesDiameter: number;
   private net: Matter.Body;
   private player1: Player;
   private player2: Player;
+  private ball: Ball;
   private players: Array<Player>;
-  private ball: Matter.Body;
-  private ballIsServed: Boolean;
-  private initialBallData: any;
-
+  
   componentDidMount() {
     this.setupWorld();
   }
@@ -120,6 +74,7 @@ class WorldClass extends Component {
 
   private keyDownHandler(e: any) {
     this.players.find(p => p.keyIsPlayerControl(e.key))?.move(e.key);
+    
   }
 
   private setupWorld() {
@@ -131,8 +86,8 @@ class WorldClass extends Component {
       element: this.refs.World as HTMLElement,
       engine: engine,
       options: {
-        width: this.worldWidth,
-        height: this.worldHeight,
+        width: worldDimensions.width,
+        height: worldDimensions.height,
         wireframes: false
       }
     });
@@ -141,26 +96,26 @@ class WorldClass extends Component {
     engine.timing.timeScale = 1.2;
 
     const ground = Bodies.rectangle(
-      this.worldWidth / 2,
-      this.worldHeight - this.groundHeight / 2,
-      this.worldWidth,
-      this.groundHeight,
+      worldDimensions.width / 2,
+      worldDimensions.height - worldDimensions.groundHeight / 2,
+      worldDimensions.width,
+      worldDimensions.groundHeight,
       { isStatic: true }
     );
 
     const leftWall = Bodies.rectangle(
-      this.groundHeight / 2,
-      this.worldHeight / 2,
-      this.groundHeight,
-      this.worldHeight * 10,
+      worldDimensions.groundHeight / 2,
+      worldDimensions.height / 2,
+      worldDimensions.groundHeight,
+      worldDimensions.height * 10,
       { isStatic: true }
     );
 
     const rightWall = Bodies.rectangle(
-      this.worldWidth - this.groundHeight / 2,
-      this.worldHeight / 2,
-      this.groundHeight,
-      this.worldHeight * 10,
+      worldDimensions.width - worldDimensions.groundHeight / 2,
+      worldDimensions.height / 2,
+      worldDimensions.groundHeight,
+      worldDimensions.height * 10,
       { isStatic: true }
     );
 
@@ -171,20 +126,16 @@ class WorldClass extends Component {
       leftWall,
       rightWall,
       this.net,
-      this.ball
+      this.ball.body
     ]);
 
     engineWorld.gravity.y = 1;
 
     Matter.Events.on(engine, "beforeUpdate", event => {
-      const maxBallSpeed = 20;
-      if (this.ball.speed >= maxBallSpeed){
-        const factor = this.ball.speed / maxBallSpeed;
-        Matter.Body.setVelocity(this.ball, {x: this.ball.velocity.x/factor, y: this.ball.velocity.y/factor});
-      }
+      this.ball.preventGoingTooFast();
         
       this.players.forEach(player => {
-        player.watchJump(this.worldHeight / 4);
+        player.watchJump(worldDimensions.height / 4);
         player.preventGoingOverNet(this.net);
       });
     });
@@ -193,40 +144,22 @@ class WorldClass extends Component {
       const pairs = event.pairs;
       pairs.forEach(pair => {
         if (
-          !this.ballIsServed &&
-          (pair.bodyA === this.ball || pair.bodyB === this.ball)
+          !this.ball.ballIsServed &&
+          (pair.bodyA === this.ball.body || pair.bodyB === this.ball.body)
         ) {
-          this.ballIsServed = true;
-          Matter.Body.setStatic(this.ball, false);
-          Matter.Body.setMass(this.ball, 0.5);
+          this.ball.serveBall();
           return;
         }
 
         if (
-          (pair.bodyA === this.ball || pair.bodyB === this.ball) &&
+          (pair.bodyA === this.ball.body || pair.bodyB === this.ball.body) &&
           (pair.bodyA === ground || pair.bodyB === ground)
         ) {
-          World.remove(engineWorld, this.ball);
-          this.ball = Bodies.circle(
-            this.initialBallData.x,
-            this.initialBallData.y,
-            this.initialBallData.diameter,
-            this.initialBallData.options
-          );
-          World.add(engineWorld, this.ball);
-          this.ballIsServed = false;
+          World.remove(engineWorld, this.ball.body);
+          const newBall = this.ball.resetBall();
+          World.add(engineWorld, newBall); 
         }
       });
-
-      // for (var i = 0, j = pairs.length; i != j; ++i) {
-      //   var pair = pairs[i];
-
-      //   if (pair.bodyA === collider) {
-      //     pair.bodyB.render.strokeStyle = redColor;
-      //   } else if (pair.bodyB === collider) {
-      //     pair.bodyA.render.strokeStyle = redColor;
-      //   }
-      // }
     });
 
     // run the engine

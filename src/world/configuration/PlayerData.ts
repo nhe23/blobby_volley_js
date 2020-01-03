@@ -1,5 +1,5 @@
-import { IPlayerData } from "../interfaces/IPlayerData";
-import { ControlsEnum } from "../interfaces/ControlsEnum"
+import { IPlayerData } from "../../interfaces/IPlayerData";
+import { ControlsEnum } from "../../interfaces/ControlsEnum"
 
 const PlayersData:Array<IPlayerData> = [
   {
