@@ -5,11 +5,11 @@ import { Player } from "./Player";
 import { IPlayerData } from "../interfaces/IPlayerData";
 import { worldDimensions } from "./configuration/WorldDimensions";
 import { Ball } from "./Ball";
+import {staticBodies} from "./configuration/StaticBodies";
 
 const Engine = Matter.Engine,
   Render = Matter.Render,
-  World = Matter.World,
-  Bodies = Matter.Bodies;
+  World = Matter.World
 
 class WorldClass extends Component {
   constructor(props: any) {
@@ -28,13 +28,7 @@ class WorldClass extends Component {
     this.player2 = new Player(player2Data, false);
 
     this.players = [this.player1, this.player2];
-    this.net = Bodies.rectangle(
-      worldDimensions.width / 2 - 5,
-      (worldDimensions.height / 4) * 3 - worldDimensions.groundHeight,
-      30,
-      worldDimensions.height / 2,
-      { isStatic: true }
-    );
+    this.net = staticBodies.net;
 
     this.ball = new Ball(20);
   }
@@ -75,36 +69,12 @@ class WorldClass extends Component {
     const engineWorld = engine.world;
     engine.timing.timeScale = 1.2;
 
-    const ground = Bodies.rectangle(
-      worldDimensions.width / 2,
-      worldDimensions.height - worldDimensions.groundHeight / 2,
-      worldDimensions.width,
-      worldDimensions.groundHeight,
-      { isStatic: true }
-    );
-
-    const leftWall = Bodies.rectangle(
-      worldDimensions.groundHeight / 2,
-      worldDimensions.height / 2,
-      worldDimensions.groundHeight,
-      worldDimensions.height * 10,
-      { isStatic: true }
-    );
-
-    const rightWall = Bodies.rectangle(
-      worldDimensions.width - worldDimensions.groundHeight / 2,
-      worldDimensions.height / 2,
-      worldDimensions.groundHeight,
-      worldDimensions.height * 10,
-      { isStatic: true }
-    );
-
     World.add(engineWorld, [
       this.player1.body,
       this.player2.body,
-      ground,
-      leftWall,
-      rightWall,
+      staticBodies.ground,
+      staticBodies.leftWall,
+      staticBodies.rightWall,
       this.net,
       this.ball.body
     ]);
@@ -133,7 +103,7 @@ class WorldClass extends Component {
 
         if (
           (pair.bodyA === this.ball.body || pair.bodyB === this.ball.body) &&
-          (pair.bodyA === ground || pair.bodyB === ground)
+          (pair.bodyA === staticBodies.ground || pair.bodyB === staticBodies.ground)
         ) {
           World.remove(engineWorld, this.ball.body);
           const newBall = this.ball.resetBall();
