@@ -3,7 +3,7 @@ import Matter from "matter-js";
 import { PlayersData } from "./configuration/PlayerData";
 import { Player } from "./Player";
 import { IPlayerData } from "../interfaces/IPlayerData";
-import {worldDimensions} from "./configuration/WorldDimensions";
+import { worldDimensions } from "./configuration/WorldDimensions";
 import { Ball } from "./Ball";
 
 const Engine = Matter.Engine,
@@ -20,30 +20,12 @@ class WorldClass extends Component {
     const player1Data: IPlayerData = PlayersData.find(
       p => p.name === "player1"
     ) as IPlayerData;
-    this.player1 = new Player(
-      Bodies.circle(
-        worldDimensions.width / 4,
-        worldDimensions.height - worldDimensions.groundHeight - worldDimensions.circlesDiameter,
-        worldDimensions.circlesDiameter,
-        { friction: 0, mass:80 }
-      ),
-      player1Data,
-      true
-    );
+    this.player1 = new Player(player1Data, true);
 
     const player2Data: IPlayerData = PlayersData.find(
       p => p.name === "player2"
     ) as IPlayerData;
-    this.player2 = new Player(
-      Bodies.circle(
-        (worldDimensions.width / 4) * 3,
-        worldDimensions.height - worldDimensions.groundHeight - worldDimensions.circlesDiameter,
-        worldDimensions.circlesDiameter,
-        { friction: 0, mass:80 }
-      ),
-      player2Data,
-      false
-    );
+    this.player2 = new Player(player2Data, false);
 
     this.players = [this.player1, this.player2];
     this.net = Bodies.rectangle(
@@ -55,7 +37,6 @@ class WorldClass extends Component {
     );
 
     this.ball = new Ball(20);
-
   }
 
   private net: Matter.Body;
@@ -63,7 +44,7 @@ class WorldClass extends Component {
   private player2: Player;
   private ball: Ball;
   private players: Array<Player>;
-  
+
   componentDidMount() {
     this.setupWorld();
   }
@@ -74,7 +55,6 @@ class WorldClass extends Component {
 
   private keyDownHandler(e: any) {
     this.players.find(p => p.keyIsPlayerControl(e.key))?.move(e.key);
-    
   }
 
   private setupWorld() {
@@ -133,7 +113,7 @@ class WorldClass extends Component {
 
     Matter.Events.on(engine, "beforeUpdate", event => {
       this.ball.preventGoingTooFast();
-        
+
       this.players.forEach(player => {
         player.watchJump(worldDimensions.height / 4);
         player.preventGoingOverNet(this.net);
@@ -157,7 +137,7 @@ class WorldClass extends Component {
         ) {
           World.remove(engineWorld, this.ball.body);
           const newBall = this.ball.resetBall();
-          World.add(engineWorld, newBall); 
+          World.add(engineWorld, newBall);
         }
       });
     });

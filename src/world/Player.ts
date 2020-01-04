@@ -2,16 +2,18 @@ import Matter from "matter-js";
 import { IPlayerData } from "../interfaces/IPlayerData";
 import { IControl } from "../interfaces/IControl";
 import { ControlsEnum } from "../interfaces/ControlsEnum";
-// import { controls } from "./gameControls";
 
 export class Player {
   public body: Matter.Body;
-  private playerData: IPlayerData;
   private controls: Array<IControl>;
   private playerIsLeftPlayer: Boolean;
-  constructor(body: Matter.Body, playerData: IPlayerData, playerIsLeftPlayer:Boolean) {
-    this.body = body;
-    this.playerData = playerData;
+  constructor(playerData: IPlayerData, playerIsLeftPlayer:Boolean) {
+    this.body = Matter.Bodies.circle(
+      playerData.body.x,
+      playerData.body.y,
+      playerData.body.diameter,
+      playerData.body.options
+    );
     this.controls = playerData.controls;
     this.playerIsLeftPlayer = playerIsLeftPlayer;
   }
