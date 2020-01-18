@@ -4,26 +4,38 @@ import { IControl } from "../interfaces/IControl";
 import { ControlsEnum } from "../interfaces/ControlsEnum";
 
 export class Player {
-  public body: Matter.Body;
-  private controls: Array<IControl>;
-  private playerIsLeftPlayer: Boolean;
+  private _body: Matter.Body;
+  private _controls: Array<IControl>;
+  private _isLeftPlayer: Boolean;
+  public consecutiveBallTouches: number;
+  public points: number;
   constructor(playerData: IPlayerData, playerIsLeftPlayer:Boolean) {
-    this.body = Matter.Bodies.circle(
+    this._body = Matter.Bodies.circle(
       playerData.body.x,
       playerData.body.y,
       playerData.body.diameter,
       playerData.body.options
     );
-    this.controls = playerData.controls;
-    this.playerIsLeftPlayer = playerIsLeftPlayer;
+    this._controls = playerData.controls;
+    this._isLeftPlayer = playerIsLeftPlayer;
+    this.consecutiveBallTouches = 0;
+    this.points = 0;
+  }
+
+  get body (){
+    return this._body;
+  }
+
+  get isLeftPlayer (){
+    return this._isLeftPlayer;
   }
 
   public keyIsPlayerControl(key: string): boolean {
-    return this.controls.some(c => c.key === key);
+    return this._controls.some(c => c.key === key);
   }
 
   public move(key: string) {
-    const direction = this.controls.find(c => c.key === key);
+    const direction = this._controls.find(c => c.key === key);
     switch (direction?.name) {
       case ControlsEnum.left:
         this.moveLeft();
@@ -38,31 +50,31 @@ export class Player {
   }
 
   public stopMove(key: string) {
-    const direction = this.controls.find(c => c.key === key);
+    const direction = this._controls.find(c => c.key === key);
     switch (direction?.name) {
       case ControlsEnum.left:
-        if (this.body.velocity.x < 0)
-          Matter.Body.setVelocity(this.body, { x: 0, y: this.body.velocity.y });
+        if (this._body.velocity.x < 0)
+          Matter.Body.setVelocity(this._body, { x: 0, y: this._body.velocity.y });
         break;
       case ControlsEnum.right:
-        if (this.body.velocity.x > 0)
-          Matter.Body.setVelocity(this.body, { x: 0, y: this.body.velocity.y });
+        if (this._body.velocity.x > 0)
+          Matter.Body.setVelocity(this._body, { x: 0, y: this._body.velocity.y });
         break;
     }
   }
 
   public preventGoingOverNet(net: Matter.Body) {
     if (
-      (this.playerIsLeftPlayer && this.body.velocity.x > 0 &&
-        this.body.position.x >= net.position.x - 50) ||
-      (!this.playerIsLeftPlayer && this.body.velocity.x < 0 && this.body.position.x <= net.position.x + 50)
+      (this._isLeftPlayer && this._body.velocity.x > 0 &&
+        this._body.position.x >= net.position.x - 50) ||
+      (!this._isLeftPlayer && this._body.velocity.x < 0 && this._body.position.x <= net.position.x + 50)
     ) {
       this.moveBody(0);
     }
   }
 
   public watchJump(maxHeight:number){
-    if (this.body.velocity.y < -1 && this.body.position.y <= 150){
+    if (this._body.velocity.y < -1 && this._body.position.y <= 150){
       this.moveBody(undefined, 10);
     }
   }
@@ -81,17 +93,17 @@ export class Player {
 
   private moveBody(xVector?: number, yVector?: number) {
     if (xVector !== undefined && yVector !== undefined)
-      return Matter.Body.setVelocity(this.body, { x: xVector, y: yVector });
+      return Matter.Body.setVelocity(this._body, { x: xVector, y: yVector });
 
     if (xVector !== undefined)
-      return Matter.Body.setVelocity(this.body, {
+      return Matter.Body.setVelocity(this._body, {
         x: xVector,
-        y: this.body.velocity.y
+        y: this._body.velocity.y
       });
 
     if (yVector !== undefined)
-      return Matter.Body.setVelocity(this.body, {
-        x: this.body.velocity.x,
+      return Matter.Body.setVelocity(this._body, {
+        x: this._body.velocity.x,
         y: yVector
       });
     console.error("At least one direction of the vector must be defined");
