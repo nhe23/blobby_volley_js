@@ -3,6 +3,7 @@ import Matter from "matter-js";
 import { PlayersData } from "./configuration/PlayerData";
 import { Player } from "./Player";
 import { IPlayerData } from "../interfaces/IPlayerData";
+import { IWorldState } from "../interfaces/IWorldState";
 import { worldDimensions } from "./configuration/WorldDimensions";
 import { Ball } from "./Ball";
 import { staticBodies } from "./configuration/StaticBodies";
@@ -11,9 +12,11 @@ const Engine = Matter.Engine,
   Render = Matter.Render,
   World = Matter.World;
 
-class WorldClass extends Component {
+class WorldClass extends Component<any, IWorldState> {
   constructor(props: any) {
     super(props);
+    this.worldRef = React.createRef();
+    this.state = { player1Points: 0, player2Points: 0 };
     this.setupWorld = this.setupWorld.bind(this);
     this.keyUpHandler = this.keyUpHandler.bind(this);
     this.keyDownHandler = this.keyDownHandler.bind(this);
@@ -42,6 +45,7 @@ class WorldClass extends Component {
   }
 
   private net: Matter.Body;
+  private worldRef: any;
   private player1: Player;
   private player2: Player;
   private ball: Ball;
@@ -51,6 +55,11 @@ class WorldClass extends Component {
 
   componentDidMount() {
     this.setupWorld();
+    this.worldRef.current.focus();
+  }
+
+  componentDidUpdate() {
+    this.worldRef.current.focus();
   }
 
   private keyUpHandler(e: any) {
@@ -63,7 +72,7 @@ class WorldClass extends Component {
 
   private setupWorld() {
     const render = Render.create({
-      element: this.refs.World as HTMLElement,
+      element: this.worldRef.current,
       engine: this.engine,
       options: {
         width: worldDimensions.width,
@@ -114,8 +123,7 @@ class WorldClass extends Component {
             collisionPlayer.consecutiveBallTouches += 1;
             otherPlayer.consecutiveBallTouches = 0;
             if (collisionPlayer.consecutiveBallTouches > 3) {
-              otherPlayer.points += 1;
-              this.resetBall();
+              this.setScore(otherPlayer);
             }
           }
           return;
@@ -135,11 +143,9 @@ class WorldClass extends Component {
               "At lest one player has to be defined as left player"
             );
 
-          scoringPlayer.points += 1;
-          this.resetBall();
+          this.setScore(scoringPlayer);
         }
       });
-      console.log(`Player 1 has ${this.player1.points} Player2 has ${this.player2.points}`);
     });
 
     // run the engine
@@ -155,18 +161,36 @@ class WorldClass extends Component {
     World.add(this.engineWorld, newBall);
   }
 
+  private setScore(scoringPlayer: Player) {
+    scoringPlayer.points += 1;
+    const newState: IWorldState = scoringPlayer.isLeftPlayer
+      ? {
+          player1Points: scoringPlayer.points,
+          player2Points: this.player2.points
+        }
+      : {
+          player1Points: this.player1.points,
+          player2Points: scoringPlayer.points
+        };
+    this.setState(newState);
+    this.resetBall();
+  }
+
   render() {
     return (
-      <div
-        className="World"
-        tabIndex={0}
-        onKeyDown={this.keyDownHandler}
-        onKeyUp={this.keyUpHandler}
-        id="World"
-        ref="World"
-      >
-        <h1>Blobbey Volley </h1>
-      </div>
+        <div
+          className="World"
+          tabIndex={-1}
+          onKeyDown={this.keyDownHandler}
+          onKeyUp={this.keyUpHandler}
+          id="World"
+          ref={this.worldRef}
+        >
+          <h1>Blobbey Volley </h1>
+          <p>
+            {this.state.player1Points} {this.state.player2Points}
+          </p>
+        </div>
     );
   }
 }
