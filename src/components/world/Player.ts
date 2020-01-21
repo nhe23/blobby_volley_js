@@ -1,7 +1,7 @@
 import Matter from "matter-js";
-import { IPlayerData } from "../interfaces/IPlayerData";
-import { IControl } from "../interfaces/IControl";
-import { ControlsEnum } from "../interfaces/ControlsEnum";
+import { IPlayerData } from "../../interfaces/IPlayerData";
+import { IControl } from "../../interfaces/IControl";
+import { ControlsEnum } from "../../enums/Controls";
 
 export class Player {
   private _body: Matter.Body;

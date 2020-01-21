@@ -1,5 +1,5 @@
 import Matter from "matter-js";
-import { ballBody } from "./configuration/BallBody";
+import { ballBody } from "../../configuration/BallBody";
 
 export class Ball {
   constructor(maxSpeed: number) {

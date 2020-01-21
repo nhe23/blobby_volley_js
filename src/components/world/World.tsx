@@ -1,12 +1,12 @@
 import React, { Component } from "react";
 import Matter from "matter-js";
-import { PlayersData } from "./configuration/PlayerData";
+import { PlayersData } from "../../configuration/PlayerData";
 import { Player } from "./Player";
-import { IPlayerData } from "../interfaces/IPlayerData";
-import { IWorldState } from "../interfaces/IWorldState";
-import { worldDimensions } from "./configuration/WorldDimensions";
+import { IPlayerData } from "../../interfaces/IPlayerData";
+import { IWorldState } from "./IWorldState";
+import { worldDimensions } from "../../configuration/WorldDimensions";
 import { Ball } from "./Ball";
-import { staticBodies } from "./configuration/StaticBodies";
+import { staticBodies } from "../../configuration/StaticBodies";
 
 const Engine = Matter.Engine,
   Render = Matter.Render,
@@ -144,6 +144,9 @@ class WorldClass extends Component<any, IWorldState> {
             );
 
           this.setScore(scoringPlayer);
+          this.players.forEach(p => {
+            p.consecutiveBallTouches=0;
+          });
         }
       });
     });

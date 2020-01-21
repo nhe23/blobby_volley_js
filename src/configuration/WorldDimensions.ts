@@ -1,4 +1,4 @@
-import { IWorldDimensions } from "../../interfaces/IWorldDimensions";
+import { IWorldDimensions } from "../interfaces/IWorldDimensions";
 const worldDimensions: IWorldDimensions = {
   height: 600,
   width: 1000,

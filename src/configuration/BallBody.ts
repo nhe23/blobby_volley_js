@@ -1,5 +1,5 @@
-import { ICircleBody } from "../../interfaces/ICircleBody";
-import Beach_volleyball_ball from "./../../data/images/Beach_volleyball_ball.png"
+import { ICircleBody } from "../interfaces/ICircleBody";
+import Beach_volleyball_ball from "./../../src/data/images/Beach_volleyball_ball.png"
 import {worldDimensions} from "./WorldDimensions";
 
 const ballBody: ICircleBody = {

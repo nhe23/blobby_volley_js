@@ -1,16 +1,25 @@
 import React, { Component } from 'react';
-import World from './world/World'
+import World from './components/world/World';
+import Menu from './components/menu/Menu';
+import { connect } from 'react-redux';
 import './App.css';
 
-class App extends Component {
+
+const mapStateToProps = (state:any) => {
+  return { gameIsStarted: state.gameIsStarted };
+}
+
+type myProps = ReturnType<typeof mapStateToProps>;
+
+class App extends Component<myProps> {
   render() {
     return (
       <div className="App">
-        <World/>
-         
+        <Menu/>
+        {this.props.gameIsStarted && <World/>}
       </div>
     );
   }
 }
 
-export default App;
+export default connect(mapStateToProps)(App);

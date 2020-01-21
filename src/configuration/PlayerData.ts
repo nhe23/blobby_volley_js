@@ -1,5 +1,5 @@
-import { IPlayerData } from "../../interfaces/IPlayerData";
-import { ControlsEnum } from "../../interfaces/ControlsEnum"
+import { IPlayerData } from "../interfaces/IPlayerData";
+import { ControlsEnum } from "../enums/Controls"
 import { worldDimensions } from "./WorldDimensions";
 
 const playerOptions = { friction: 0, mass:80 };
