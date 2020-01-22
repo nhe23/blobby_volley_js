@@ -1,0 +1,5 @@
+export enum GameStatus {
+    GAME_IS_NOT_STARTED= 'GAME_IS_NOT_STARTED',
+    GAME_IS_RUNNING= 'GAME_IS_RUNNING',
+    GAME_IS_OVER= 'GAME_IS_OVER',
+}

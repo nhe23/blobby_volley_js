@@ -1,4 +1,5 @@
-export enum GameIsStartedActions{
-    START_GAME= 'START_GAME',
-    END_GAME = 'END_GAME'
+export enum GameStateActions {
+  START_GAME = "START_GAME",
+  COMPLETE_GAME = "COMPLETE_GAME",
+  END_GAME = "END_GAME"
 }

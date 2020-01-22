@@ -1,8 +1,8 @@
-import gameIsStarted from './gameIsStarted';
+import gameStatusReducer from './gameStateReducer';
 import {combineReducers} from 'redux';
 
 const rootReducer = combineReducers({
-    gameIsStarted
+    gameState: gameStatusReducer
 })
 
 export default rootReducer;

@@ -1,3 +1,4 @@
 export interface IGameStateAction{
-    type: string
+    type: string,
+    payload: string
 }

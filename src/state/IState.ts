@@ -1,3 +1,6 @@
 export interface IState{
-    gameIsStarted: boolean
+    gameState: {
+        status: string,
+        data: string
+    }
 }

@@ -1,12 +1,12 @@
 import React, { Component } from "react";
-import setGameStarted from '../../state/actions/gameStateActions';
+import {startGame} from '../../state/actions/gameStateActions';
 import { IState } from '../../state/IState'
 import {IConnectedProps} from '../../interfaces/IConnectedProps';
 import { connect } from 'react-redux';
 import "./Menu.css";
 
 const mapStateToProps = (state:IState) => {
-    return { gameIsStarted: state.gameIsStarted };
+    return { gameState: state.gameState };
 }
 
 class Menu extends Component <IConnectedProps>{
@@ -17,15 +17,15 @@ class Menu extends Component <IConnectedProps>{
   }
 
   private startGame(e: any) {
-    this.props.dispatch(setGameStarted())
+    this.props.dispatch(startGame())
   }
 
   render() {
-      console.log(this.props.gameIsStarted);
+      console.log(this.props.gameState.status);
     return (
       <div>
         <ul className="menuList">
-          <li onClick={e => this.startGame(e)}> Start Game {this.props.gameIsStarted}</li>
+          <li onClick={e => this.startGame(e)}> Start Game </li>
           <li>Settings</li>
         </ul>
       </div>

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Matter from "matter-js";
+import { connect } from 'react-redux';
 import { PlayersData } from "../../configuration/PlayerData";
 import { Player } from "./Player";
 import { IPlayerData } from "../../interfaces/IPlayerData";
@@ -7,12 +8,19 @@ import { IWorldState } from "./IWorldState";
 import { worldDimensions } from "../../configuration/WorldDimensions";
 import { Ball } from "./Ball";
 import { staticBodies } from "../../configuration/StaticBodies";
+import { IState } from "../../state/IState";
+import { IConnectedProps } from "../../interfaces/IConnectedProps";
+import { completeGame} from "../../state/actions/gameStateActions";
 
 const Engine = Matter.Engine,
   Render = Matter.Render,
   World = Matter.World;
 
-class WorldClass extends Component<any, IWorldState> {
+const mapStateToProps = (state:IState) => {
+    return { gameState: state.gameState };
+}
+
+class WorldClass extends Component<IConnectedProps, IWorldState> {
   constructor(props: any) {
     super(props);
     this.worldRef = React.createRef();
@@ -126,7 +134,7 @@ class WorldClass extends Component<any, IWorldState> {
               this.setScore(otherPlayer);
             }
           }
-          return;
+
         }
 
         if (
@@ -149,6 +157,10 @@ class WorldClass extends Component<any, IWorldState> {
           });
         }
       });
+      const winner = this.players.find(p => p.points > 14);
+      if (winner){
+        this.props.dispatch(completeGame(winner.isLeftPlayer? "Left player": "Right player"));
+      }
     });
 
     // run the engine
@@ -198,4 +210,4 @@ class WorldClass extends Component<any, IWorldState> {
   }
 }
 
-export default WorldClass;
+export default connect(mapStateToProps)(WorldClass);
