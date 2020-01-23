@@ -1,0 +1,26 @@
+@import url(https://fonts.googleapis.com/css?family=Mr+Dafoe);
+
+.title {
+  grid-area: header;
+  justify-self: flex-start;
+  align-self: flex-start;
+  left: 0;
+  font-family: 'Mr Dafoe', cursive;
+  font-size: 100px;
+  margin: 20px;
+  color: #EB219B;
+  -webkit-text-fill-color: rgba(253, 90, 250, 1);
+  text-shadow: -2px -2px 0 #FFBAF2;
+  -webkit-filter: drop-shadow(3px 3px 1px #441F62);
+  -webkit-transform: skew(-5deg,-5deg);
+  font-weight: normal;
+  z-index: 2;
+}
+
+.App {
+  display:grid;
+  grid-template-areas: 
+  "header header header header"
+  "main main main main"
+}
+

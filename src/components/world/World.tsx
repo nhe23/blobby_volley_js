@@ -11,6 +11,7 @@ import { staticBodies } from "../../configuration/StaticBodies";
 import { IState } from "../../state/IState";
 import { IConnectedProps } from "../../interfaces/IConnectedProps";
 import { completeGame} from "../../state/actions/gameStateActions";
+import './World.scss';
 
 const Engine = Matter.Engine,
   Render = Matter.Render,
@@ -201,10 +202,9 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
           id="World"
           ref={this.worldRef}
         >
-          <h1>Blobbey Volley </h1>
-          <p>
-            {this.state.player1Points} {this.state.player2Points}
-          </p>
+          <div className="gameScore">
+            <div className="score">{this.state.player1Points}</div> <div className="score">{this.state.player2Points}</div>
+          </div>
         </div>
     );
   }

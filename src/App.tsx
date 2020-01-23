@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import World from './components/world/World';
 import Menu from './components/menu/Menu';
 import { connect } from 'react-redux';
-import './App.css';
+import './App.scss';
 import { IState } from './state/IState';
 import { GameStatus } from './state/reducers/GameStateEnum';
 
@@ -18,6 +18,8 @@ class App extends Component<myProps> {
     console.log(this.props.gameState)
     return (
       <div className="App">
+        <h1 className="title">Blobbey Volley. js</h1>
+        <div className="break"></div>
         {this.props.gameState.status === GameStatus.GAME_IS_NOT_STARTED && <Menu/>}
         {this.props.gameState.status === GameStatus.GAME_IS_RUNNING && <World/>}
         {this.props.gameState.status === GameStatus.GAME_IS_OVER && <div>The winner is {this.props.gameState.data}</div>}

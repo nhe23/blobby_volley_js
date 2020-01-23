@@ -1,27 +1,26 @@
 import React, { Component } from "react";
-import {startGame} from '../../state/actions/gameStateActions';
-import { IState } from '../../state/IState'
-import {IConnectedProps} from '../../interfaces/IConnectedProps';
-import { connect } from 'react-redux';
+import { startGame } from "../../state/actions/gameStateActions";
+import { IState } from "../../state/IState";
+import { IConnectedProps } from "../../interfaces/IConnectedProps";
+import { connect } from "react-redux";
 import "./Menu.css";
 
-const mapStateToProps = (state:IState) => {
-    return { gameState: state.gameState };
-}
+const mapStateToProps = (state: IState) => {
+  return { gameState: state.gameState };
+};
 
-class Menu extends Component <IConnectedProps>{
-  
+class Menu extends Component<IConnectedProps> {
   constructor(props: any) {
     super(props);
     this.startGame = this.startGame.bind(this);
   }
 
   private startGame(e: any) {
-    this.props.dispatch(startGame())
+    this.props.dispatch(startGame());
   }
 
   render() {
-      console.log(this.props.gameState.status);
+    console.log(this.props.gameState.status);
     return (
       <div>
         <ul className="menuList">
