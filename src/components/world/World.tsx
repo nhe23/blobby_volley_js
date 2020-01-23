@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import Matter from "matter-js";
-import { connect } from 'react-redux';
+import { connect } from "react-redux";
 import { PlayersData } from "../../configuration/PlayerData";
 import { Player } from "./Player";
 import { IPlayerData } from "../../interfaces/IPlayerData";
@@ -10,16 +10,16 @@ import { Ball } from "./Ball";
 import { staticBodies } from "../../configuration/StaticBodies";
 import { IState } from "../../state/IState";
 import { IConnectedProps } from "../../interfaces/IConnectedProps";
-import { completeGame} from "../../state/actions/gameStateActions";
-import './World.scss';
+import { completeGame } from "../../state/actions/gameStateActions";
+import "./World.scss";
 
 const Engine = Matter.Engine,
   Render = Matter.Render,
   World = Matter.World;
 
-const mapStateToProps = (state:IState) => {
-    return { gameState: state.gameState };
-}
+const mapStateToProps = (state: IState) => {
+  return { gameState: state.gameState };
+};
 
 class WorldClass extends Component<IConnectedProps, IWorldState> {
   constructor(props: any) {
@@ -135,7 +135,6 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
               this.setScore(otherPlayer);
             }
           }
-
         }
 
         if (
@@ -153,14 +152,13 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
             );
 
           this.setScore(scoringPlayer);
-          this.players.forEach(p => {
-            p.consecutiveBallTouches=0;
-          });
         }
       });
       const winner = this.players.find(p => p.points > 14);
-      if (winner){
-        this.props.dispatch(completeGame(winner.isLeftPlayer? "Left player": "Right player"));
+      if (winner) {
+        this.props.dispatch(
+          completeGame(winner.isLeftPlayer ? "Left player" : "Right player")
+        );
       }
     });
 
@@ -188,24 +186,28 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
           player1Points: this.player1.points,
           player2Points: scoringPlayer.points
         };
+    this.players.forEach(p => {
+      p.consecutiveBallTouches = 0;
+    });
     this.setState(newState);
     this.resetBall();
   }
 
   render() {
     return (
-        <div
-          className="World"
-          tabIndex={-1}
-          onKeyDown={this.keyDownHandler}
-          onKeyUp={this.keyUpHandler}
-          id="World"
-          ref={this.worldRef}
-        >
-          <div className="gameScore">
-            <div className="score">{this.state.player1Points}</div> <div className="score">{this.state.player2Points}</div>
-          </div>
+      <div
+        className="World"
+        tabIndex={-1}
+        onKeyDown={this.keyDownHandler}
+        onKeyUp={this.keyUpHandler}
+        id="World"
+        ref={this.worldRef}
+      >
+        <div className="gameScore">
+          <div className="score">{this.state.player1Points}</div>{" "}
+          <div className="score">{this.state.player2Points}</div>
         </div>
+      </div>
     );
   }
 }

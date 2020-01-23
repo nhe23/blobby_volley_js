@@ -19,7 +19,6 @@ class App extends Component<myProps> {
     return (
       <div className="App">
         <h1 className="title">Blobbey Volley. js</h1>
-        <div className="break"></div>
         {this.props.gameState.status === GameStatus.GAME_IS_NOT_STARTED && <Menu/>}
         {this.props.gameState.status === GameStatus.GAME_IS_RUNNING && <World/>}
         {this.props.gameState.status === GameStatus.GAME_IS_OVER && <div>The winner is {this.props.gameState.data}</div>}

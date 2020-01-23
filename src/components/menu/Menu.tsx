@@ -22,7 +22,7 @@ class Menu extends Component<IConnectedProps> {
   render() {
     console.log(this.props.gameState.status);
     return (
-      <div>
+      <div className="menuContainer">
         <ul className="menuList">
           <li onClick={e => this.startGame(e)}> Start Game </li>
           <li>Settings</li>
