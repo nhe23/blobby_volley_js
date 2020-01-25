@@ -1,0 +1,11 @@
+@import "./theme/PrimaryColors.scss";
+
+body {
+  background-color: $background;
+  color: $textColor;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}

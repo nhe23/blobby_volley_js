@@ -12,6 +12,7 @@ import { IState } from "../../state/IState";
 import { IConnectedProps } from "../../interfaces/IConnectedProps";
 import { completeGame } from "../../state/actions/gameStateActions";
 import "./World.scss";
+import { Link } from "react-router-dom";
 
 const Engine = Matter.Engine,
   Render = Matter.Render,
@@ -204,7 +205,8 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
         ref={this.worldRef}
       >
         <div className="gameScore">
-          <div className="score">{this.state.player1Points}</div>{" "}
+          <div className="score">{this.state.player1Points}</div>
+          <div className="score"><Link to="/">Menu</Link></div>
           <div className="score">{this.state.player2Points}</div>
         </div>
       </div>

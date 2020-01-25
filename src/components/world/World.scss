@@ -1,30 +1,27 @@
 @import url(https://fonts.googleapis.com/css?family=Bangers);
 
-.score {
-//   position: relative;
-//   font-family: 'Monoton', cursive;
-//   font-size: 50px;
-//   line-height: 1;
-//   /* font-weight: normal; */
-//   -webkit-text-fill-color: transparent;
-//   -webkit-text-stroke: 1px #fff;
 
+
+.score {
 font-weight: normal;
-color: #EB219B;
+color: rgb(246,	90,	250);
 text-transform: uppercase;
 font-size: 60px;
 white-space: nowrap;
 z-index: 1000;
 font-family: 'Bangers', cursive;
 // text-shadow: 5px 5px 0 #FFBAF2;
+min-width: 40px;
+text-align: center;
 }
 
 .gameScore {
     display:flex;
     justify-content: space-between;
 }
+
 .World {
-    grid-area: main;
+    grid-area: render;
     justify-self: center;
     align-self: flex-start;
 }
