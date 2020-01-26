@@ -6,3 +6,8 @@ export interface IPlayerData{
     controls: Array<IControl>,
     body: ICircleBody
 }
+
+export interface IPlayerControl{
+    name: string,
+    controls: Array<IControl>
+}

@@ -4,8 +4,6 @@ import { RouteComponentProps, Link } from "react-router-dom";
 
 class Settings extends Component<RouteComponentProps> {
   render() {
-    //   const urlSplit = this.props.match.url.split("/");
-    //   const breadCrumbs = urlSplit.map((u, i) => <Link to={`${urlSplit.slice(0,i).map(s => s + "/")}`}>{`${u}/`}</Link>);
     const menu: JSX.Element = (
       <ul className="menuItems bangerFont">
         <li>
