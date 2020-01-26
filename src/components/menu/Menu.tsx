@@ -8,13 +8,13 @@ import MenuBase from "./MenuBase";
 class Menu extends Component<RouteComponentProps> {
   render() {
     const items: JSX.Element = (
-      <div>
+      <ul className="menuItems bangerFont">
         <li><Link to="/play">Start Game</Link></li>
         <li><Link to="/settings">Settings</Link></li>
-      </div>
+      </ul>
     );
 
-    return <MenuBase list={items}></MenuBase>;
+    return <MenuBase renderElement={items}></MenuBase>;
   }
 }
 

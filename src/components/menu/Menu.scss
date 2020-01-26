@@ -10,14 +10,15 @@
     color: $textColor;
 }
 
-.menuList {
+.menuItems {
   grid-row-start: 2;
   grid-row-end: 3;
   font-size: 60px;
   list-style-type: none;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .menuContainer {

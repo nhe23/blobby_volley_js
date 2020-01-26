@@ -5,11 +5,11 @@ import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import "./Menu.scss";
 
 interface IMenuBaseProps {
-  list: JSX.Element;
+  renderElement : JSX.Element;
   currentUrl?: string;
 }
 
-export default function({ list, currentUrl = "" }: IMenuBaseProps) {
+export default function({ renderElement, currentUrl = "" }: IMenuBaseProps) {
   const getBreadCrumbElement = (
     breadCrumb: string,
     index: number,
@@ -29,11 +29,13 @@ export default function({ list, currentUrl = "" }: IMenuBaseProps) {
     const urlSplit = currentUrl.split("/");
     urlSplit.pop();
     breadCrumbs = urlSplit.map((u, i) => (
-      <Link className="crumb bangerFont"
+      <Link
+        className="crumb bangerFont"
         to={`${urlSplit
           .slice(0, i + 1)
           .map((s, i) => (i + 1 < urlSplit.length ? s + "/" : s))
-          .join("")}`} key={i}
+          .join("")}`}
+        key={i}
       >
         {getBreadCrumbElement(u, i, urlSplit.length)}
       </Link>
@@ -42,10 +44,10 @@ export default function({ list, currentUrl = "" }: IMenuBaseProps) {
 
   return (
     <div className="menuContainer">
-      <Breadcrumbs classes={{root: "breadCrumbs"}} aria-label="breadcrumb">
+      <Breadcrumbs classes={{ root: "breadCrumbs" }} aria-label="breadcrumb">
         {breadCrumbs}
       </Breadcrumbs>
-      <ul className="menuList bangerFont">{list}</ul>
+      {renderElement}
     </div>
   );
 }

@@ -1,0 +1,25 @@
+@import "../../../../theme/PrimaryColors.scss";
+
+.controlsContainer {
+    display:flex;
+    flex-direction: row;
+    justify-content: space-around;
+    width: -webkit-fill-available;
+}
+
+.playerContainer {
+    display: flex;
+    flex-direction: column;    
+}
+
+.control {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: baseline;
+    margin-bottom: 10px;
+} 
+
+.controlTextField {
+    color: $textColor;
+}
