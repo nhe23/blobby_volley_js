@@ -3,6 +3,7 @@ import { ICircleBody } from "./ICircleBody";
 
 export interface IPlayerData{
     name: string,
+    isLeftPlayer: boolean,
     controls: Array<IControl>,
     body: ICircleBody
 }

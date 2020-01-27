@@ -1,7 +1,7 @@
 import Matter from "matter-js";
-import { IPlayerData } from "../../interfaces/IPlayerData";
 import { IControl } from "../../interfaces/IControl";
 import { ControlsEnum } from "../../enums/Controls";
+import { ICircleBody } from "../../interfaces/ICircleBody";
 
 export class Player {
   private _body: Matter.Body;
@@ -9,14 +9,14 @@ export class Player {
   private _isLeftPlayer: Boolean;
   public consecutiveBallTouches: number;
   public points: number;
-  constructor(playerData: IPlayerData, playerIsLeftPlayer:Boolean) {
+  constructor(playerBody: ICircleBody, controls:Array<IControl> ,playerIsLeftPlayer:Boolean) {
     this._body = Matter.Bodies.circle(
-      playerData.body.x,
-      playerData.body.y,
-      playerData.body.diameter,
-      playerData.body.options
+      playerBody.x,
+      playerBody.y,
+      playerBody.diameter,
+      playerBody.options
     );
-    this._controls = playerData.controls;
+    this._controls = controls;
     this._isLeftPlayer = playerIsLeftPlayer;
     this.consecutiveBallTouches = 0;
     this.points = 0;

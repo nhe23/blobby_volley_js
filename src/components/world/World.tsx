@@ -3,7 +3,7 @@ import Matter from "matter-js";
 import { connect } from "react-redux";
 import { PlayersData } from "../../configuration/PlayerData";
 import { Player } from "./Player";
-import { IPlayerData } from "../../interfaces/IPlayerData";
+import { IPlayerData, IPlayerControl } from "../../interfaces/IPlayerData";
 import { IWorldState } from "./IWorldState";
 import { worldDimensions } from "../../configuration/WorldDimensions";
 import { Ball } from "./Ball";
@@ -13,13 +13,14 @@ import { IConnectedProps } from "../../interfaces/IConnectedProps";
 import { completeGame } from "../../state/actions/gameStateActions";
 import "./World.scss";
 import { Link } from "react-router-dom";
+import { IControl } from "../../interfaces/IControl";
 
 const Engine = Matter.Engine,
   Render = Matter.Render,
   World = Matter.World;
 
 const mapStateToProps = (state: IState) => {
-  return { gameState: state.gameState };
+  return { gameState: state.gameState, controls: state.controls };
 };
 
 class WorldClass extends Component<IConnectedProps, IWorldState> {
@@ -33,22 +34,23 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
 
     // create an engine
     this.engine = Engine.create();
-
-    // create a renderer
-
     this.engineWorld = this.engine.world;
 
-    const player1Data: IPlayerData = PlayersData.find(
-      p => p.name === "player1"
-    ) as IPlayerData;
-    this.player1 = new Player(player1Data, true);
-
-    const player2Data: IPlayerData = PlayersData.find(
-      p => p.name === "player2"
-    ) as IPlayerData;
-    this.player2 = new Player(player2Data, false);
-
-    this.players = [this.player1, this.player2];
+    this.players = [];
+    PlayersData.forEach(playerData => {
+      const controls: Array<IControl> | undefined = this.props.controls.find(
+        p => p.name === playerData.name
+      )?.controls;
+      if (!controls) {
+        throw new Error(`No controls defined for player ${playerData.name}`);
+      }
+      const player = new Player(
+        playerData.body,
+        controls,
+        playerData.isLeftPlayer
+      );
+      this.players.push(player);
+    });
     this.net = staticBodies.net;
 
     this.ball = new Ball(20);
@@ -56,8 +58,6 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
 
   private net: Matter.Body;
   private worldRef: any;
-  private player1: Player;
-  private player2: Player;
   private ball: Ball;
   private players: Array<Player>;
   private engine: Matter.Engine;
@@ -91,10 +91,9 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
       }
     });
     this.engine.timing.timeScale = 1.2;
-
+    const playerBodies = this.players.map(p => p.body);
     World.add(this.engineWorld, [
-      this.player1.body,
-      this.player2.body,
+      ...playerBodies,
       staticBodies.ground,
       staticBodies.leftWall,
       staticBodies.rightWall,
@@ -128,12 +127,12 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
           const collisionPlayer = this.players.find(p =>
             pairBodies.some(b => b === p.body)
           );
-          const otherPlayer = this.players.find(p => p !== collisionPlayer);
-          if (collisionPlayer && otherPlayer) {
+          const scoringPlayer = this.players.find(p => p !== collisionPlayer);
+          if (collisionPlayer && scoringPlayer) {
             collisionPlayer.consecutiveBallTouches += 1;
-            otherPlayer.consecutiveBallTouches = 0;
+            scoringPlayer.consecutiveBallTouches = 0;
             if (collisionPlayer.consecutiveBallTouches > 3) {
-              this.setScore(otherPlayer);
+              this.setScore(scoringPlayer, collisionPlayer);
             }
           }
         }
@@ -151,8 +150,15 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
             throw new Error(
               "At lest one player has to be defined as left player"
             );
+          const otherPlayer = this.players.find(
+            p => p.isLeftPlayer !== scoringPlayer.isLeftPlayer
+          );
+          if (!otherPlayer)
+            throw new Error(
+              "At lest one player has to be defined as left player"
+            );
 
-          this.setScore(scoringPlayer);
+          this.setScore(scoringPlayer, otherPlayer);
         }
       });
       const winner = this.players.find(p => p.points > 14);
@@ -176,15 +182,15 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
     World.add(this.engineWorld, newBall);
   }
 
-  private setScore(scoringPlayer: Player) {
+  private setScore(scoringPlayer: Player, otherPlayer: Player) {
     scoringPlayer.points += 1;
     const newState: IWorldState = scoringPlayer.isLeftPlayer
       ? {
           player1Points: scoringPlayer.points,
-          player2Points: this.player2.points
+          player2Points: otherPlayer.points
         }
       : {
-          player1Points: this.player1.points,
+          player1Points: otherPlayer.points,
           player2Points: scoringPlayer.points
         };
     this.players.forEach(p => {
@@ -206,7 +212,9 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
       >
         <div className="gameScore">
           <div className="score">{this.state.player1Points}</div>
-          <div className="score"><Link to="/">Menu</Link></div>
+          <div className="score">
+            <Link to="/">Menu</Link>
+          </div>
           <div className="score">{this.state.player2Points}</div>
         </div>
       </div>

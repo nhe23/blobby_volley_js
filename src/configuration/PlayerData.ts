@@ -7,6 +7,7 @@ const playerOptions = { friction: 0, mass:80 };
 const PlayersData:Array<IPlayerData> = [
   {
     name: "player1",
+    isLeftPlayer: true,
     controls: [
       {name: ControlsEnum.up, key: "w"},
       {name: ControlsEnum.down, key: "s"},
@@ -22,6 +23,7 @@ const PlayersData:Array<IPlayerData> = [
   },
   {
     name: "player2",
+    isLeftPlayer: false,
     controls: [
       {name: ControlsEnum.up, key: "ArrowUp"},
       {name: ControlsEnum.down, key: "ArrowDown"},
