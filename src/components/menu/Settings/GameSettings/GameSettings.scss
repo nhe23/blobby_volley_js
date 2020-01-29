@@ -1,0 +1,25 @@
+
+@import "../../Menu.scss";
+
+.gameSettingsContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    font-size: 40px;
+}
+
+.gameSettingName{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.gameSetting {
+    display: flex;
+}
+
+
+.MuiSlider-markLabel{
+    @extend .bangerFont;
+    font-size: 20px !important;
+}

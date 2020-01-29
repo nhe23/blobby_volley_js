@@ -3,7 +3,6 @@ import Matter from "matter-js";
 import { connect } from "react-redux";
 import { PlayersData } from "../../configuration/PlayerData";
 import { Player } from "./Player";
-import { IPlayerData, IPlayerControl } from "../../interfaces/IPlayerData";
 import { IWorldState } from "./IWorldState";
 import { worldDimensions } from "../../configuration/WorldDimensions";
 import { Ball } from "./Ball";
@@ -20,7 +19,7 @@ const Engine = Matter.Engine,
   World = Matter.World;
 
 const mapStateToProps = (state: IState) => {
-  return { gameState: state.gameState, controls: state.controls };
+  return { gameState: state.gameState, controls: state.controls, gameSettings: state.gameSettings };
 };
 
 class WorldClass extends Component<IConnectedProps, IWorldState> {
@@ -47,7 +46,7 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
       const player = new Player(
         playerData.body,
         controls,
-        playerData.isLeftPlayer
+        playerData.isLeftPlayer,this.props.gameSettings.gameSpeed
       );
       this.players.push(player);
     });
@@ -62,8 +61,12 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
   private players: Array<Player>;
   private engine: Matter.Engine;
   private engineWorld: Matter.World;
+  private audioPlayer: any;
 
   componentDidMount() {
+    this.audioPlayer.src =
+      "http://soundbible.com/mp3/Mario_Jumping-Mike_Koenig-989896458.mp3";
+    this.audioPlayer.preLoad = "auto";
     this.setupWorld();
     this.worldRef.current.focus();
   }
@@ -78,6 +81,12 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
 
   private keyDownHandler(e: any) {
     this.players.find(p => p.keyIsPlayerControl(e.key))?.move(e.key);
+  }
+
+  private playSound() {
+    this.audioPlayer.pause();
+    this.audioPlayer.currentTime = 0;
+    this.audioPlayer.play();
   }
 
   private setupWorld() {
@@ -102,14 +111,17 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
     ]);
 
     this.engineWorld.gravity.y = 1;
-
     Matter.Events.on(this.engine, "beforeUpdate", event => {
       this.ball.preventGoingTooFast();
 
       this.players.forEach(player => {
         player.watchJump(worldDimensions.height / 4);
         player.preventGoingOverNet(this.net);
+        // player.preventGoingOutOfBounds();
       });
+    });
+    Matter.Events.on(this.engine, "collisionEnd", event => {
+      this.ball.adaptBallSpedToFactor(this.props.gameSettings.gameSpeed);
     });
 
     Matter.Events.on(this.engine, "collisionStart", event => {
@@ -121,20 +133,23 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
           pairBodies.some(b => b === this.ball.body) &&
           this.players.some(p => pairBodies.some(b => b === p.body))
         ) {
-          if (!this.ball.ballIsServed) {
-            this.ball.serveBall();
-          }
+          if (this.props.gameSettings.soundIsActivated) this.playSound();
+          if (!this.ball.ballIsServed) this.ball.serveBall();
+          else if (!this.ball.adaptBallSpeed) this.ball.adaptBallSpeed = true;
+
           const collisionPlayer = this.players.find(p =>
             pairBodies.some(b => b === p.body)
           );
           const scoringPlayer = this.players.find(p => p !== collisionPlayer);
           if (collisionPlayer && scoringPlayer) {
+            console.log("Add consecutive ball touches");
             collisionPlayer.consecutiveBallTouches += 1;
             scoringPlayer.consecutiveBallTouches = 0;
             if (collisionPlayer.consecutiveBallTouches > 3) {
               this.setScore(scoringPlayer, collisionPlayer);
             }
           }
+          return;
         }
 
         if (
@@ -142,6 +157,7 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
           (pair.bodyA === staticBodies.ground ||
             pair.bodyB === staticBodies.ground)
         ) {
+          if (!this.ball.adaptBallSpeed) this.ball.adaptBallSpeed = true;
           const scoringPlayer =
             this.ball.body.position.x < worldDimensions.width / 2
               ? this.players.find(p => !p.isLeftPlayer)
@@ -210,6 +226,7 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
         id="World"
         ref={this.worldRef}
       >
+        <audio ref={ref => (this.audioPlayer = ref)} />
         <div className="gameScore">
           <div className="score">{this.state.player1Points}</div>
           <div className="score">

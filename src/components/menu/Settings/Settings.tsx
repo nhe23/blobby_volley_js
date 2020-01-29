@@ -9,7 +9,7 @@ class Settings extends Component<RouteComponentProps> {
         <li>
           <Link to={`${this.props.match.path}/controls`}>Controls</Link>
         </li>
-        <li>Game Physics</li>
+        <li><Link to={`${this.props.match.path}/gamesettings`}>Game Settings</Link></li>
       </ul>
     );
     return <MenuBase renderElement={menu} currentUrl={this.props.match.url} />;

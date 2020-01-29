@@ -7,9 +7,10 @@ export class Player {
   private _body: Matter.Body;
   private _controls: Array<IControl>;
   private _isLeftPlayer: Boolean;
+  private _gameSpeed: number;
   public consecutiveBallTouches: number;
   public points: number;
-  constructor(playerBody: ICircleBody, controls:Array<IControl> ,playerIsLeftPlayer:Boolean) {
+  constructor(playerBody: ICircleBody, controls:Array<IControl> ,playerIsLeftPlayer:Boolean, gameSpeed: number) {
     this._body = Matter.Bodies.circle(
       playerBody.x,
       playerBody.y,
@@ -20,6 +21,7 @@ export class Player {
     this._isLeftPlayer = playerIsLeftPlayer;
     this.consecutiveBallTouches = 0;
     this.points = 0;
+    this._gameSpeed = gameSpeed;
   }
 
   get body (){
@@ -73,6 +75,12 @@ export class Player {
     }
   }
 
+  public preventGoingOutOfBounds(){
+    if (this.body.position.y > 531){
+      Matter.Body.setPosition(this.body, {x: this.body.position.x, y: 530})
+    }
+  }
+
   public watchJump(maxHeight:number){
     if (this._body.velocity.y < -1 && this._body.position.y <= 150){
       this.moveBody(undefined, 10);
@@ -92,19 +100,20 @@ export class Player {
   }
 
   private moveBody(xVector?: number, yVector?: number) {
+    console.log(`Gamespeed ${this._gameSpeed}`);
     if (xVector !== undefined && yVector !== undefined)
       return Matter.Body.setVelocity(this._body, { x: xVector, y: yVector });
 
     if (xVector !== undefined)
       return Matter.Body.setVelocity(this._body, {
-        x: xVector,
+        x: xVector*this._gameSpeed,
         y: this._body.velocity.y
       });
 
     if (yVector !== undefined)
       return Matter.Body.setVelocity(this._body, {
         x: this._body.velocity.x,
-        y: yVector
+        y: yVector*this._gameSpeed
       });
     console.error("At least one direction of the vector must be defined");
   }

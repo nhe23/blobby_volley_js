@@ -12,26 +12,10 @@ import {
   ArrowForward
 } from "@material-ui/icons";
 import "./Controls.scss";
-import {
-  TextField,
-  createMuiTheme,
-  ThemeProvider,
-  styled
-} from "@material-ui/core";
+import { TextField, ThemeProvider, styled } from "@material-ui/core";
 import { IState } from "../../../../state/IState";
 import { IControl } from "../../../../interfaces/IControl";
-
-const darkTheme = createMuiTheme({
-  palette: {
-    primary: {
-      main: "#f65afa"
-    },
-    secondary: {
-      main: "#4696ff"
-    },
-    type: "dark"
-  }
-});
+import darkTheme from "../../../../theme/MatUiTheme";
 
 const MyTextfield = styled(TextField)({
   width: 100
@@ -43,15 +27,15 @@ const mapStateToProps = (state: IState) => {
 type myProps = RouteComponentProps & IConnectedProps;
 
 class Controls extends Component<myProps> {
-  constructor(props:myProps){
+  constructor(props: myProps) {
     super(props);
-    this.keyDownHandler=this.keyDownHandler.bind(this);
+    this.keyDownHandler = this.keyDownHandler.bind(this);
   }
-  private keyDownHandler(playerName:string, control:string, key:string){
+  private keyDownHandler(playerName: string, control: string, key: string) {
     this.props.dispatch(changeControl(playerName, control, key));
   }
 
-  private getTextField(control: IControl, name:string): JSX.Element {
+  private getTextField(control: IControl, name: string): JSX.Element {
     return (
       <MyTextfield
         id="input-with-icon-grid"
@@ -66,7 +50,7 @@ class Controls extends Component<myProps> {
       />
     );
   }
-  private getControl(control: IControl, name:string): JSX.Element {
+  private getControl(control: IControl, name: string): JSX.Element {
     const fontSize = "large";
     const textField: JSX.Element = this.getTextField(control, name);
     switch (control.name) {
@@ -106,7 +90,11 @@ class Controls extends Component<myProps> {
         <div className="playerContainer" key={i}>
           <h3>{p.name}</h3>
           {p.controls.map((control, i) => {
-            return <div className="control" key={i}>{this.getControl(control, p.name)}</div>;
+            return (
+              <div className="control" key={i}>
+                {this.getControl(control, p.name)}
+              </div>
+            );
           })}
         </div>
       );
@@ -115,9 +103,7 @@ class Controls extends Component<myProps> {
     const Controls: JSX.Element = (
       <div className="menuItems bangerFont">
         <ThemeProvider theme={darkTheme}>
-          <div className="controlsContainer">
-            {Players}
-          </div>
+          <div className="controlsContainer">{Players}</div>
         </ThemeProvider>
       </div>
     );

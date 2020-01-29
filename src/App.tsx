@@ -3,11 +3,12 @@ import World from "./components/world/World";
 import Menu from "./components/menu/Menu";
 import Settings from "./components/menu/Settings/Settings";
 import Controls from "./components/menu/Settings/Controls/Controls";
+import GameSettings from "./components/menu/Settings/GameSettings/GameSettings";
 import { connect } from "react-redux";
 import "./App.scss";
 import { IState } from "./state/IState";
 import { GameStatus } from "./state/reducers/GameStateEnum";
-import { Route, Link, BrowserRouter as Router } from "react-router-dom";
+import { Route, BrowserRouter as Router } from "react-router-dom";
 
 const mapStateToProps = (state: IState) => {
   return { gameState: state.gameState };
@@ -35,6 +36,7 @@ class App extends Component<myProps> {
           <Route path ="/play" component={World}/>
           <Route exact path="/settings" component={Settings}></Route>
           <Route path="/settings/controls" component={Controls}></Route>
+          <Route path="/settings/gamesettings" component={GameSettings}></Route>
         </div>
       </Router>
     );
