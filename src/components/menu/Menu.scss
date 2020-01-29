@@ -1,14 +1,6 @@
 @import "../../theme/PrimaryColors.scss";
+@import "../../theme/Fonts.scss";
 @import url(https://fonts.googleapis.com/css?family=Bangers);
-
-.bangerFont {
-    text-transform: uppercase;
-    font-family: "Bangers", cursive !important;
-    z-index: 1000;
-    white-space: nowrap;
-    font-weight: normal;
-    color: $textColor;
-}
 
 .menuItems {
   grid-row-start: 2;

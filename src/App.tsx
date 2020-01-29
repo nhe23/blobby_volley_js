@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import World from "./components/world/World";
+import GameOver from "./components/world/GameOver";
 import Menu from "./components/menu/Menu";
 import Settings from "./components/menu/Settings/Settings";
 import Controls from "./components/menu/Settings/Controls/Controls";
@@ -19,21 +20,13 @@ type myProps = ReturnType<typeof mapStateToProps>;
 class App extends Component<myProps> {
   render() {
     console.log(this.props.gameState);
+    const world =this.props.gameState.status === GameStatus.GAME_IS_OVER? GameOver: World;
     return (
       <Router>
         <div className="App">
           <h1 className="title">Blobbey Volley. js</h1>
-          {/* {this.props.gameState.status === GameStatus.GAME_IS_NOT_STARTED && (
-            <Menu />
-          )}
-          {this.props.gameState.status === GameStatus.GAME_IS_RUNNING && (
-            <World />
-          )}
-          {this.props.gameState.status === GameStatus.GAME_IS_OVER && (
-            <div>The winner is {this.props.gameState.data}</div>
-          )} */}
           <Route exact path="/" component={Menu}/>
-          <Route path ="/play" component={World}/>
+          <Route path ="/play" component={world}/>
           <Route exact path="/settings" component={Settings}></Route>
           <Route path="/settings/controls" component={Controls}></Route>
           <Route path="/settings/gamesettings" component={GameSettings}></Route>

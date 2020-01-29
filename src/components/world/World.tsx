@@ -19,7 +19,11 @@ const Engine = Matter.Engine,
   World = Matter.World;
 
 const mapStateToProps = (state: IState) => {
-  return { gameState: state.gameState, controls: state.controls, gameSettings: state.gameSettings };
+  return {
+    gameState: state.gameState,
+    controls: state.controls,
+    gameSettings: state.gameSettings
+  };
 };
 
 class WorldClass extends Component<IConnectedProps, IWorldState> {
@@ -46,7 +50,8 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
       const player = new Player(
         playerData.body,
         controls,
-        playerData.isLeftPlayer,this.props.gameSettings.gameSpeed
+        playerData.isLeftPlayer,
+        this.props.gameSettings.gameSpeed
       );
       this.players.push(player);
     });
@@ -111,6 +116,12 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
     ]);
 
     this.engineWorld.gravity.y = 1;
+    // run the engine
+    Engine.run(this.engine);
+
+    // run the renderer
+    Render.run(render);
+
     Matter.Events.on(this.engine, "beforeUpdate", event => {
       this.ball.preventGoingTooFast();
 
@@ -146,7 +157,11 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
             collisionPlayer.consecutiveBallTouches += 1;
             scoringPlayer.consecutiveBallTouches = 0;
             if (collisionPlayer.consecutiveBallTouches > 3) {
-              this.setScore(scoringPlayer, collisionPlayer);
+              this.setScore(
+                scoringPlayer,
+                collisionPlayer,
+                this.props.gameSettings.firewallIsActivated ? 10 : 1
+              );
             }
           }
           return;
@@ -174,22 +189,40 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
               "At lest one player has to be defined as left player"
             );
 
-          this.setScore(scoringPlayer, otherPlayer);
+          this.setScore(
+            scoringPlayer,
+            otherPlayer,
+            this.props.gameSettings.firewallIsActivated ? 10 : 1
+          );
+        }
+
+        // wallpoints
+        if (
+          this.props.gameSettings.firewallIsActivated &&
+          pairBodies.some(b => b === this.ball.body) &&
+          pairBodies.some(
+            b => b === staticBodies.leftWall || b === staticBodies.rightWall
+          )
+        ) {
+          const leftPlayer = this.players.find(p => p.isLeftPlayer);
+          const rightPlayer = this.players.find(p => !p.isLeftPlayer);
+          if (!leftPlayer || !rightPlayer)
+            throw new Error("Invalid player configuration.");
+          if (pairBodies.some(b => b === staticBodies.leftWall))
+            return this.setScore(rightPlayer, leftPlayer, 1, true);
+          this.setScore(leftPlayer, rightPlayer, 1, true);
         }
       });
-      const winner = this.players.find(p => p.points > 14);
+
+      const winner = this.players.find(
+        p => p.points > (this.props.gameSettings.firewallIsActivated ? 149 : 14)
+      );
       if (winner) {
         this.props.dispatch(
           completeGame(winner.isLeftPlayer ? "Left player" : "Right player")
         );
       }
     });
-
-    // run the engine
-    Engine.run(this.engine);
-
-    // run the renderer
-    Render.run(render);
   }
 
   private resetBall() {
@@ -198,8 +231,13 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
     World.add(this.engineWorld, newBall);
   }
 
-  private setScore(scoringPlayer: Player, otherPlayer: Player) {
-    scoringPlayer.points += 1;
+  private setScore(
+    scoringPlayer: Player,
+    otherPlayer: Player,
+    points: number,
+    wallpoint = false
+  ) {
+    scoringPlayer.points += points;
     const newState: IWorldState = scoringPlayer.isLeftPlayer
       ? {
           player1Points: scoringPlayer.points,
@@ -209,11 +247,13 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
           player1Points: otherPlayer.points,
           player2Points: scoringPlayer.points
         };
-    this.players.forEach(p => {
-      p.consecutiveBallTouches = 0;
-    });
     this.setState(newState);
-    this.resetBall();
+    if (!wallpoint) {
+      this.players.forEach(p => {
+        p.consecutiveBallTouches = 0;
+      });
+      this.resetBall();
+    }
   }
 
   render() {
