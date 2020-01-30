@@ -19,7 +19,6 @@ type myProps = ReturnType<typeof mapStateToProps>;
 
 class App extends Component<myProps> {
   render() {
-    console.log(this.props.gameState);
     const world =this.props.gameState.status === GameStatus.GAME_IS_OVER? GameOver: World;
     return (
       <Router>

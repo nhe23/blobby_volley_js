@@ -106,13 +106,15 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
     });
     this.engine.timing.timeScale = 1.2;
     const playerBodies = this.players.map(p => p.body);
+
     World.add(this.engineWorld, [
       ...playerBodies,
       staticBodies.ground,
       staticBodies.leftWall,
       staticBodies.rightWall,
       this.net,
-      this.ball.body
+      this.ball.body,
+      this.ball.positionMarker
     ]);
 
     this.engineWorld.gravity.y = 1;
@@ -124,7 +126,7 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
 
     Matter.Events.on(this.engine, "beforeUpdate", event => {
       this.ball.preventGoingTooFast();
-
+      this.ball.setPositionMarker();
       this.players.forEach(player => {
         player.watchJump(worldDimensions.height / 4);
         player.preventGoingOverNet(this.net);
@@ -136,84 +138,7 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
     });
 
     Matter.Events.on(this.engine, "collisionStart", event => {
-      const pairs = event.pairs;
-      pairs.forEach(pair => {
-        const pairBodies = [pair.bodyA, pair.bodyB];
-        // Collision between player and ball
-        if (
-          pairBodies.some(b => b === this.ball.body) &&
-          this.players.some(p => pairBodies.some(b => b === p.body))
-        ) {
-          if (this.props.gameSettings.soundIsActivated) this.playSound();
-          if (!this.ball.ballIsServed) this.ball.serveBall();
-          else if (!this.ball.adaptBallSpeed) this.ball.adaptBallSpeed = true;
-
-          const collisionPlayer = this.players.find(p =>
-            pairBodies.some(b => b === p.body)
-          );
-          const scoringPlayer = this.players.find(p => p !== collisionPlayer);
-          if (collisionPlayer && scoringPlayer) {
-            console.log("Add consecutive ball touches");
-            collisionPlayer.consecutiveBallTouches += 1;
-            scoringPlayer.consecutiveBallTouches = 0;
-            if (collisionPlayer.consecutiveBallTouches > 3) {
-              this.setScore(
-                scoringPlayer,
-                collisionPlayer,
-                this.props.gameSettings.firewallIsActivated ? 10 : 1
-              );
-            }
-          }
-          return;
-        }
-
-        if (
-          (pair.bodyA === this.ball.body || pair.bodyB === this.ball.body) &&
-          (pair.bodyA === staticBodies.ground ||
-            pair.bodyB === staticBodies.ground)
-        ) {
-          if (!this.ball.adaptBallSpeed) this.ball.adaptBallSpeed = true;
-          const scoringPlayer =
-            this.ball.body.position.x < worldDimensions.width / 2
-              ? this.players.find(p => !p.isLeftPlayer)
-              : this.players.find(p => p.isLeftPlayer);
-          if (!scoringPlayer)
-            throw new Error(
-              "At lest one player has to be defined as left player"
-            );
-          const otherPlayer = this.players.find(
-            p => p.isLeftPlayer !== scoringPlayer.isLeftPlayer
-          );
-          if (!otherPlayer)
-            throw new Error(
-              "At lest one player has to be defined as left player"
-            );
-
-          this.setScore(
-            scoringPlayer,
-            otherPlayer,
-            this.props.gameSettings.firewallIsActivated ? 10 : 1
-          );
-        }
-
-        // wallpoints
-        if (
-          this.props.gameSettings.firewallIsActivated &&
-          pairBodies.some(b => b === this.ball.body) &&
-          pairBodies.some(
-            b => b === staticBodies.leftWall || b === staticBodies.rightWall
-          )
-        ) {
-          const leftPlayer = this.players.find(p => p.isLeftPlayer);
-          const rightPlayer = this.players.find(p => !p.isLeftPlayer);
-          if (!leftPlayer || !rightPlayer)
-            throw new Error("Invalid player configuration.");
-          if (pairBodies.some(b => b === staticBodies.leftWall))
-            return this.setScore(rightPlayer, leftPlayer, 1, true);
-          this.setScore(leftPlayer, rightPlayer, 1, true);
-        }
-      });
-
+      this.handleBodiesCollision(event.pairs);
       const winner = this.players.find(
         p => p.points > (this.props.gameSettings.firewallIsActivated ? 149 : 14)
       );
@@ -221,6 +146,84 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
         this.props.dispatch(
           completeGame(winner.isLeftPlayer ? "Left player" : "Right player")
         );
+      }
+    });
+  }
+
+  private handleBodiesCollision(collisionPair:Matter.IPair[]){
+    collisionPair.forEach(pair => {
+      const pairBodies = [pair.bodyA, pair.bodyB];
+      // Collision between player and ball
+      if (
+        pairBodies.some(b => b === this.ball.body) &&
+        this.players.some(p => pairBodies.some(b => b === p.body))
+      ) {
+        if (this.props.gameSettings.soundIsActivated) this.playSound();
+        if (!this.ball.ballIsServed) this.ball.serveBall();
+        else if (!this.ball.adaptBallSpeed) this.ball.adaptBallSpeed = true;
+
+        const collisionPlayer = this.players.find(p =>
+          pairBodies.some(b => b === p.body)
+        );
+        const scoringPlayer = this.players.find(p => p !== collisionPlayer);
+        if (collisionPlayer && scoringPlayer) {
+          collisionPlayer.consecutiveBallTouches += 1;
+          scoringPlayer.consecutiveBallTouches = 0;
+          if (collisionPlayer.consecutiveBallTouches > 3) {
+            this.setScore(
+              scoringPlayer,
+              collisionPlayer,
+              this.props.gameSettings.firewallIsActivated ? 10 : 1
+            );
+          }
+        }
+        return;
+      }
+
+      //Collision between ball and ground
+      if (
+        pairBodies.some(b => b === this.ball.body) &&
+        pairBodies.some(b => b === staticBodies.ground)
+      ) {
+        if (!this.ball.adaptBallSpeed) this.ball.adaptBallSpeed = true;
+        const scoringPlayer =
+          this.ball.body.position.x < worldDimensions.width / 2
+            ? this.players.find(p => !p.isLeftPlayer)
+            : this.players.find(p => p.isLeftPlayer);
+        if (!scoringPlayer)
+          throw new Error(
+            "At lest one player has to be defined as left player"
+          );
+        const otherPlayer = this.players.find(
+          p => p.isLeftPlayer !== scoringPlayer.isLeftPlayer
+        );
+        if (!otherPlayer)
+          throw new Error(
+            "At lest one player has to be defined as left player"
+          );
+
+        this.setScore(
+          scoringPlayer,
+          otherPlayer,
+          this.props.gameSettings.firewallIsActivated ? 10 : 1
+        );
+      }
+
+      // Collision between ball and walls
+      if (
+        this.props.gameSettings.firewallIsActivated &&
+        pairBodies.some(b => b === this.ball.body) &&
+        pairBodies.some(
+          b => b === staticBodies.leftWall || b === staticBodies.rightWall
+        )
+      ) {
+        const leftPlayer = this.players.find(p => p.isLeftPlayer);
+        const rightPlayer = this.players.find(p => !p.isLeftPlayer);
+        if (!leftPlayer || !rightPlayer)
+          throw new Error("Invalid player configuration.");
+        if (pairBodies.some(b => b === staticBodies.leftWall))
+          return this.setScore(rightPlayer, leftPlayer, 1, true);
+        this.setScore(leftPlayer, rightPlayer, 1, true);
       }
     });
   }

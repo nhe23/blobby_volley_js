@@ -13,12 +13,25 @@ export class Ball {
     this._ballIsServed = false;
     this._leftPlayerServes = true;
     this.adaptBallSpeed = false;
+    this.positionMarker = Matter.Bodies.circle(
+      this._body.position.x,
+      10,
+      5,
+      {
+        isSensor: true,
+        isStatic: true,
+        render: {
+          fillStyle: "transparent"
+        }
+      }
+    );
   }
   private _body: Matter.Body;
   private _maxSpeed: number;
   private _ballIsServed: boolean;
   private _leftPlayerServes: boolean;
   public adaptBallSpeed: boolean;
+  public positionMarker: Matter.Body;
 
   get ballIsServed() {
     return this._ballIsServed;
@@ -26,6 +39,16 @@ export class Ball {
 
   get body() {
     return this._body;
+  }
+
+  public setPositionMarker() {
+    if (this._body.position.y < 0){
+      Matter.Body.setPosition(this.positionMarker, {x: this._body.position.x, y: this.positionMarker.position.y})
+      this.positionMarker.render.fillStyle = '#ffffff'
+    }
+    else {
+      this.positionMarker.render.fillStyle = "transparent";
+    }
   }
 
   public preventGoingTooFast() {

@@ -100,7 +100,6 @@ export class Player {
   }
 
   private moveBody(xVector?: number, yVector?: number) {
-    console.log(`Gamespeed ${this._gameSpeed}`);
     if (xVector !== undefined && yVector !== undefined)
       return Matter.Body.setVelocity(this._body, { x: xVector, y: yVector });
 
