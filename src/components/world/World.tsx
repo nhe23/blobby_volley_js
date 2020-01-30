@@ -254,6 +254,7 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
     if (!wallpoint) {
       this.players.forEach(p => {
         p.consecutiveBallTouches = 0;
+        Matter.Body.setPosition(p.body, p.initialPosition);
       });
       this.resetBall();
     }

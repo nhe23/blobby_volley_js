@@ -10,7 +10,10 @@ export class Player {
   private _gameSpeed: number;
   public consecutiveBallTouches: number;
   public points: number;
+  public initialPosition:Matter.Vector;
+  
   constructor(playerBody: ICircleBody, controls:Array<IControl> ,playerIsLeftPlayer:Boolean, gameSpeed: number) {
+    this.initialPosition = {x: playerBody.x, y: playerBody.y}
     this._body = Matter.Bodies.circle(
       playerBody.x,
       playerBody.y,
