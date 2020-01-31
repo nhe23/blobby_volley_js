@@ -34,11 +34,20 @@ const MySlider = styled(Slider)({
 });
 
 const mapStateToProps = (state: IState) => {
-  return { gameSetting: state.gameSettings };
+  return { gameSettings: state.gameSettings };
 };
 type myProps = RouteComponentProps & IConnectedProps;
+interface myState {
+  soundSwitchChecked: boolean,
+  firewallSwitchChecked: boolean
+}
 
-class GameSettings extends Component<myProps> {
+class GameSettings extends Component<myProps, myState> {
+  constructor(props:myProps){
+    super(props);
+    this.state = {soundSwitchChecked: this.props.gameSettings.soundIsActivated, firewallSwitchChecked: this.props.gameSettings.firewallIsActivated}
+  }
+
   render() {
     const gameSettings: JSX.Element = (
       <div className="gameSettingsContainer">
@@ -56,8 +65,6 @@ class GameSettings extends Component<myProps> {
               onChange={(e, value) => {
                 this.props.dispatch(changeGameSpeed(value as number));
               }}
-              // valueLabelFormat={valueLabelFormat}
-              // getAriaValueText={valuetext}
               aria-labelledby="discrete-slider-restrict"
               step={0.1}
               valueLabelDisplay="auto"
@@ -66,19 +73,25 @@ class GameSettings extends Component<myProps> {
               max={1.2}
             />
             <Switch
-              defaultChecked
-              value="checkedF"
+              checked={this.state.soundSwitchChecked}
+              value="checkedA"
               color="primary"
-              onChange={e => this.props.dispatch(setSoundActivated())}
+              onChange={e => {
+                this.props.dispatch(setSoundActivated());
+                this.setState({soundSwitchChecked: this.props.gameSettings.soundIsActivated});
+              }}
             />
             <div className="gameSetting">
               <div>Player 1</div>
               <div>Player2</div>
             </div>
             <Switch
-              value="checkedF"
+              checked={this.state.firewallSwitchChecked}
               color="primary"
-              onChange={e => this.props.dispatch(setFirewallActivated())}
+              onChange={e => {
+                this.props.dispatch(setFirewallActivated());
+                this.setState({firewallSwitchChecked: this.props.gameSettings.firewallIsActivated});
+              }}
             />
           </div>
         </ThemeProvider>
