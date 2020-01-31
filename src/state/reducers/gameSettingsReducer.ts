@@ -2,7 +2,7 @@ import { GameSettingsActions } from "../actions/GameSettingsActionsEnum";
 import { IGameStateSettingsActions } from "../actions/IGameStateSettingActions";
 
 export const gameSettingsReducer = (
-  state = { gameSpeed: 1, soundIsActivated: true, firewallIsActivated: false },
+  state = { gameSpeed: 1, soundIsActivated: false, firewallIsActivated: false },
   action: IGameStateSettingsActions
 ) => {
   switch (action.type) {
