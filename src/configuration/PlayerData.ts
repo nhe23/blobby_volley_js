@@ -18,7 +18,7 @@ const PlayersData:Array<IPlayerData> = [
       x: worldDimensions.width / 4,
       y: worldDimensions.height - worldDimensions.groundHeight - worldDimensions.circlesDiameter,
       diameter: worldDimensions.circlesDiameter,
-      options: playerOptions
+      options: {...playerOptions, render:{ fillStyle: "#4696ff"}}
     }
   },
   {
@@ -34,7 +34,7 @@ const PlayersData:Array<IPlayerData> = [
       x: (worldDimensions.width / 4) * 3,
       y: worldDimensions.height - worldDimensions.groundHeight - worldDimensions.circlesDiameter,
       diameter: worldDimensions.circlesDiameter,
-      options: playerOptions
+      options: {...playerOptions, render:{ fillStyle: "#d8115a"}}
     }
   }
 ];

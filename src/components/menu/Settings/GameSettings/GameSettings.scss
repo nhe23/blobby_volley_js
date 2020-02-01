@@ -3,23 +3,26 @@
 
 .gameSettingsContainer {
     display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    font-size: 40px;
-}
-
-.gameSettingName{
-    display: flex;
     flex-direction: column;
     justify-content: space-evenly;
+    justify-self: center;
+    font-size: 40px;
+    width:66%;
 }
 
 .gameSetting {
     display: flex;
+    justify-content: space-between;
 }
 
 
 .MuiSlider-markLabel{
     @extend .bangerFont;
     font-size: 20px !important;
+}
+
+.playerColor {
+    min-width: 120px;
+    display: flex;
+    flex-direction: column;
 }

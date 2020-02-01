@@ -22,7 +22,7 @@ const MyTextfield = styled(TextField)({
 });
 
 const mapStateToProps = (state: IState) => {
-  return { controls: state.controls };
+  return { playerData: state.playerData };
 };
 type myProps = RouteComponentProps & IConnectedProps;
 
@@ -85,7 +85,7 @@ class Controls extends Component<myProps> {
     }
   }
   render() {
-    const Players = this.props.controls.map((p, i) => {
+    const Players = this.props.playerData.map((p, i) => {
       const player: JSX.Element = (
         <div className="playerContainer" key={i}>
           <h3>{p.name}</h3>

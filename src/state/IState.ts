@@ -1,11 +1,11 @@
-import { IPlayerControl } from "../interfaces/IPlayerData";
+import { IPlayerData } from "../interfaces/IPlayerData";
 
 export interface IState {
   gameState: {
     status: string;
     data: string;
   };
-  controls: Array<IPlayerControl>;
+  playerData: Array<IPlayerData>;
   gameSettings: {
     gameSpeed: number;
     soundIsActivated: boolean;

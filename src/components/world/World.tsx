@@ -12,7 +12,6 @@ import { IConnectedProps } from "../../interfaces/IConnectedProps";
 import { completeGame } from "../../state/actions/gameStateActions";
 import "./World.scss";
 import { Link } from "react-router-dom";
-import { IControl } from "../../interfaces/IControl";
 
 const Engine = Matter.Engine,
   Render = Matter.Render,
@@ -21,7 +20,7 @@ const Engine = Matter.Engine,
 const mapStateToProps = (state: IState) => {
   return {
     gameState: state.gameState,
-    controls: state.controls,
+    playerData: state.playerData,
     gameSettings: state.gameSettings
   };
 };
@@ -40,16 +39,10 @@ class WorldClass extends Component<IConnectedProps, IWorldState> {
     this.engineWorld = this.engine.world;
 
     this.players = [];
-    PlayersData.forEach(playerData => {
-      const controls: Array<IControl> | undefined = this.props.controls.find(
-        p => p.name === playerData.name
-      )?.controls;
-      if (!controls) {
-        throw new Error(`No controls defined for player ${playerData.name}`);
-      }
+    this.props.playerData.forEach(playerData => {
       const player = new Player(
         playerData.body,
-        controls,
+        playerData.controls,
         playerData.isLeftPlayer,
         this.props.gameSettings.gameSpeed
       );
