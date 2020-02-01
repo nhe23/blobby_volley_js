@@ -1,6 +1,10 @@
-# Blobby Volley
-This is a JavaScript only remake of the legendary BlobbeyVolley. The purpose of this project is purely fun and learning new stuff on the way. This project was realized with the [matter-js](https://github.com/liabru/matter-js) physics enginge and react as frontend framework.
+# Blobby Volley JS
 
+This is a JavaScript only remake of the legendary BlobbyVolley. The purpose of this project is purely fun and learning new stuff on the way. This project was realized with the [matter-js](https://github.com/liabru/matter-js) physics enginge and react as frontend framework.
+
+## Live Version
+
+Live version can be found [here](https://master.d3m5xqwx8sphvy.amplifyapp.com). Default controls are `w`,`a`,`s`,`d` for the left player and `ArrowUp`,`ArrowLeft`,`ArrowDown`,`ArrowRight` for the right player.
 
 ## Run locally
 
